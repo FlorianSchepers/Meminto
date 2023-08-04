@@ -1,6 +1,7 @@
 import pickle
 from pyannote.audio import Pipeline
 
+
 def load_diarization(file_path):
     with open(file_path, 'rb') as file:
         diarization = pickle.load(file)
