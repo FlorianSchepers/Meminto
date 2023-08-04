@@ -1,5 +1,6 @@
 import os
 import requests
+from decorators import log_time
 
 
 OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
@@ -46,6 +47,7 @@ EXAMPLE_1_AI_SUGGESTIONS = "\n\
 **Ai suggestions:**\n\
     - Who organises a present for Adam?\n"
 
+@log_time
 def transscript_to_meeting_minutes(transscript, language):
     system_prompt = INSTRUCTIONS+SUGGESTIONS_BY_AI+SELECT_LANGUAGE+language+'.\n'+INTRO_EXAMPLES+EXAMPLE_1+EXAMPLE_1_AI_SUGGESTIONS
     print(system_prompt)

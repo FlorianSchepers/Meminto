@@ -1,5 +1,7 @@
 import torchaudio
 
+from decorators import log_time
+
 
 SAMPLING_RATE = 16000
 
@@ -17,6 +19,7 @@ def load_audio(audio_path):
   audio_resampled = resampler(audio)
   return audio_resampled.squeeze()
 
+@log_time
 def split_audio(audio_source, diarization):
   audio = load_audio(audio_source) 
   

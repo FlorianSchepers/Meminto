@@ -2,6 +2,7 @@ from enum import Enum
 import torch
 from transformers import *
 from audio_processing import SAMPLING_RATE, batch
+from decorators import log_time
 
 
 class WHISPER_MODEL_SIZE(Enum):
@@ -56,6 +57,7 @@ def get_transcription_whisper(audio, model_size, language="english", skip_specia
         transcription.append(whisper_processor.batch_decode(predicted_ids, skip_special_tokens=skip_special_tokens)[0])
     return transcription
 
+@log_time
 def transscript_audio(audio_sections, language):
     section_transscripts = []
     for section in audio_sections:

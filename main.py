@@ -1,10 +1,11 @@
 from audio_processing import split_audio
+from decorators import log_time
 from diarization import diarize_audio, load_diarization, save_diarization
 from helpers import write_text_to_file
 from transscript_to_meeting_minutes import transscript_to_meeting_minutes
 from transscription import load_transscript, transscript_audio, save_transscript
 
-
+@log_time
 def create_meeting_minutes(audio_source, language):
     
     diarization = diarize_audio(audio_source)
