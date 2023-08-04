@@ -1,7 +1,9 @@
-from diarization import diarize_audio
+from diarization import diarize_audio, load_diarization, save_diarization
 
 def create_meeting_minutes(audio_source, language):
     diarization = diarize_audio(audio_source)
+    save_diarization(diarization, 'diarization.pkl')
+    diarization = load_diarization('diarization.pkl')
     print(diarization)
 
 def main()->None:
