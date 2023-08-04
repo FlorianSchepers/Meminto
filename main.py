@@ -1,5 +1,6 @@
 from audio_processing import split_audio
 from diarization import diarize_audio, load_diarization, save_diarization
+from transscript_to_meeting_minutes import transscript_to_meeting_minutes
 from transscription import load_transscript, transscript_audio, save_transscript
 
 
@@ -13,7 +14,8 @@ def create_meeting_minutes(audio_source, language):
     save_transscript(audio_sections, transscript_sections, 'transscript.txt')
     
     transscript = load_transscript('transscript.txt')
-    print(transscript)
+    meeting_minutes = transscript_to_meeting_minutes(transscript, language)
+    print(meeting_minutes)
 
 def main()->None:
     audio_source = r"examples\Scoreboard.wav"
