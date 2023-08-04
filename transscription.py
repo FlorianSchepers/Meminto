@@ -61,3 +61,15 @@ def transscript_audio(audio_sections, language):
     for section in audio_sections:
         section_transscripts.append(get_transcription_whisper(section["audio"], model_size=WHISPER_MODEL_SIZE.MEDIUM, language=language, skip_special_tokens=True))
     return section_transscripts
+
+def save_transscript(audio_sections, section_transscripts, file_path):
+    with open(file_path, 'w') as file:
+        for idx, section in enumerate(audio_sections):
+            file.write(f"start={section['turn'].start:.1f}s stop={section['turn'].end:.1f}s speaker_{section['speaker']}:\n")
+            for batch in section_transscripts[idx]:
+                file.write(batch.strip())
+            file.write("\n")
+
+def load_transscript(file_path):
+    with open(file_path, 'r') as file:     
+        return file.read()
