@@ -1,10 +1,12 @@
 from audio_processing import split_audio
 from diarization import diarize_audio, load_diarization, save_diarization
+from helpers import write_text_to_file
 from transscript_to_meeting_minutes import transscript_to_meeting_minutes
 from transscription import load_transscript, transscript_audio, save_transscript
 
 
 def create_meeting_minutes(audio_source, language):
+    
     diarization = diarize_audio(audio_source)
     save_diarization(diarization, 'diarization.pkl')
     
@@ -15,6 +17,7 @@ def create_meeting_minutes(audio_source, language):
     
     transscript = load_transscript('transscript.txt')
     meeting_minutes = transscript_to_meeting_minutes(transscript, language)
+    write_text_to_file(meeting_minutes, 'meeting_minutes.txt')
     print(meeting_minutes)
 
 def main()->None:

@@ -2,3 +2,4 @@ Pipfile
 __pycache__/
 diarization.pkl
 transscript.txt
+meeting_minutes.txt
