@@ -3,6 +3,11 @@ import torchaudio
 
 SAMPLING_RATE = 16000
 
+def batch(iterable,n=1):
+    l = len(iterable)
+    for ndx in range(0, l, n):
+        yield iterable[ndx:min(ndx+n, l)] 
+
 def load_audio(audio_path):
   audio, sr = torchaudio.load(audio_path)
   number_of_channels = audio.size()[0]
