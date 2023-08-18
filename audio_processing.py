@@ -21,7 +21,7 @@ def load_audio(audio_path):
 
 @log_time
 def split_audio(audio_source, diarization):
-  audio = load_audio(audio_source) 
+  audio = load_audio(audio_source.resolve()) 
   
   audio_sections = []
   for turn, _, speaker in diarization.itertracks(yield_label=True):

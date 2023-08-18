@@ -53,8 +53,6 @@ def transscript_to_meeting_minutes(transscript, language):
     print()
 
     system_prompt = INSTRUCTIONS+SUGGESTIONS_BY_AI+SELECT_LANGUAGE+language+'.\n'+INTRO_EXAMPLES+EXAMPLE_1+EXAMPLE_1_AI_SUGGESTIONS
-    print(system_prompt)
-    print()
     
     url = 'https://api.openai.com/v1/chat/completions'
     json_data ={ 

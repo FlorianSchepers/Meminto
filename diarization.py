@@ -20,4 +20,4 @@ def save_diarization(diarization, file_path):
 def diarize_audio(audio_source):
     print("Diarizing audio")
     pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization@2.1", use_auth_token=HUGGING_FACE_ACCESS_TOKEN)
-    return pipeline(audio_source)
+    return pipeline(audio_source.resolve())
