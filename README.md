@@ -29,7 +29,7 @@ Install pipenv<br>
 `pip install --user pipenv`<br>
 Create an new environment<br>
 `pipenv install`<br>
-Actiavte the new environment<br>
+Activate the new environment<br>
 `pipenv shell`<br>
 Install the requirements for Meminto<br>
 `pip install -r requirements.txt`
