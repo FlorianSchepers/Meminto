@@ -49,6 +49,7 @@ def setup_whisper(model_size=WHISPER_MODEL_SIZE.MEDIUM, english_only=False):
     whisper_model = WhisperForConditionalGeneration.from_pretrained(
         whisper_model_name
     ).to(device)
+    print(f"Running on {device}")
     return whisper_processor, whisper_model
 
 
