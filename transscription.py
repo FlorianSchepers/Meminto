@@ -45,9 +45,8 @@ def setup_whisper(model_size=WHISPER_MODEL_SIZE.MEDIUM, english_only=False):
     whisper_model = WhisperForConditionalGeneration.from_pretrained(whisper_model_name).to(device)
     return whisper_processor, whisper_model
 
-def get_transcription_whisper(audio, model_size, language="english", skip_special_tokens=True):
+def get_transcription_whisper(audio, whisper_processor, whisper_model, language="english", skip_special_tokens=True):
     audio_batched = batch(audio, SAMPLING_RATE*30)
-    (whisper_processor, whisper_model) = setup_whisper(model_size=model_size)
     transcription = []
     for idx, section in enumerate(audio_batched):
         print(idx)
@@ -60,8 +59,17 @@ def get_transcription_whisper(audio, model_size, language="english", skip_specia
 @log_time
 def transscript_audio(audio_sections, language):
     section_transscripts = []
+    (whisper_processor, whisper_model) = setup_whisper(model_size=WHISPER_MODEL_SIZE.MEDIUM)
     for section in audio_sections:
-        section_transscripts.append(get_transcription_whisper(section["audio"], model_size=WHISPER_MODEL_SIZE.MEDIUM, language=language, skip_special_tokens=True))
+        section_transscripts.append(
+            get_transcription_whisper(
+                section["audio"],  
+                whisper_processor=whisper_processor,
+                whisper_model=whisper_model, 
+                language=language, 
+                skip_special_tokens=True
+            )
+        )
     return section_transscripts
 
 def save_transscript(audio_sections, section_transscripts, file_path):
