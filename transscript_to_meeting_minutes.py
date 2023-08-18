@@ -47,23 +47,36 @@ EXAMPLE_1_AI_SUGGESTIONS = "\n\
 **Ai suggestions:**\n\
     - Who organises a present for Adam?\n"
 
+
 @log_time
 def transscript_to_meeting_minutes(transscript, language):
     print("Creating meeting minutes from transscript")
     print()
 
-    system_prompt = INSTRUCTIONS+SUGGESTIONS_BY_AI+SELECT_LANGUAGE+language+'.\n'+INTRO_EXAMPLES+EXAMPLE_1+EXAMPLE_1_AI_SUGGESTIONS
-    
-    url = 'https://api.openai.com/v1/chat/completions'
-    json_data ={ 
-        'model': 'gpt-3.5-turbo', 
-        'messages': [{"role": "system", "content": system_prompt},{"role": "user", "content": transscript}],
-        }
-    headers = {
-        'Content-Type': 'application/json', 
-        'Authorization': 'Bearer ' + OPENAI_API_KEY
-    }
-    
-    response = requests.post(url=url, json = json_data, headers=headers)
+    system_prompt = (
+        INSTRUCTIONS
+        + SUGGESTIONS_BY_AI
+        + SELECT_LANGUAGE
+        + language
+        + ".\n"
+        + INTRO_EXAMPLES
+        + EXAMPLE_1
+        + EXAMPLE_1_AI_SUGGESTIONS
+    )
 
-    return response.json()['choices'][0]['message']['content']
+    url = "https://api.openai.com/v1/chat/completions"
+    json_data = {
+        "model": "gpt-3.5-turbo",
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": transscript},
+        ],
+    }
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + OPENAI_API_KEY,
+    }
+
+    response = requests.post(url=url, json=json_data, headers=headers)
+
+    return response.json()["choices"][0]["message"]["content"]
