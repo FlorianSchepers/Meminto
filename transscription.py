@@ -48,8 +48,7 @@ def setup_whisper(model_size=WHISPER_MODEL_SIZE.MEDIUM, english_only=False):
 def get_transcription_whisper(audio, whisper_processor, whisper_model, language="english", skip_special_tokens=True):
     audio_batched = batch(audio, SAMPLING_RATE*30)
     transcription = []
-    for idx, section in enumerate(audio_batched):
-        print(idx)
+    for section in audio_batched:
         input_features = whisper_processor(section, return_tensors="pt", sampling_rate=SAMPLING_RATE).input_features.to(device)
         forced_decoder_ids = whisper_processor.get_decoder_prompt_ids(language=language, task="transcribe")
         predicted_ids = whisper_model.generate(input_features, forced_decoder_ids=forced_decoder_ids)
@@ -58,9 +57,12 @@ def get_transcription_whisper(audio, whisper_processor, whisper_model, language=
 
 @log_time
 def transscript_audio(audio_sections, language):
+    print("Creating transscript from diarized audio")
     section_transscripts = []
     (whisper_processor, whisper_model) = setup_whisper(model_size=WHISPER_MODEL_SIZE.MEDIUM)
-    for section in audio_sections:
+    total_number_of_sections = len(audio_sections)
+    for section_number, section in enumerate(audio_sections):
+        print(f"Transscribing section {section_number} of {total_number_of_sections}.")
         section_transscripts.append(
             get_transcription_whisper(
                 section["audio"],  

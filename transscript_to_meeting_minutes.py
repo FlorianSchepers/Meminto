@@ -49,6 +49,7 @@ EXAMPLE_1_AI_SUGGESTIONS = "\n\
 
 @log_time
 def transscript_to_meeting_minutes(transscript, language):
+    print("Creating meeting minutes from transscript")
     system_prompt = INSTRUCTIONS+SUGGESTIONS_BY_AI+SELECT_LANGUAGE+language+'.\n'+INTRO_EXAMPLES+EXAMPLE_1+EXAMPLE_1_AI_SUGGESTIONS
     print(system_prompt)
     json_data ={ 
