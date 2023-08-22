@@ -7,7 +7,7 @@ from helpers import write_text_to_file
 from transscript_to_meeting_minutes import transscript_to_meeting_minutes
 from transscription import load_transscript, transscript_audio, save_transscript
 
-ALLOWED_INPUT_FILE_TYPE = {".wav"}
+ALLOWED_INPUT_FILE_TYPE = {".wav", ".mp3"}
 EXAMPLE_FILE_PATH = "examples/Scoreboard.wav"
 
 
