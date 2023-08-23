@@ -3,8 +3,6 @@ import requests
 from decorators import log_time
 
 
-OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
-
 INSTRUCTIONS = "You are a team assistant and support the team with its daily work.\n\
 You will be handed the transcript of a meeting by the user.\n\
 Your task is to create meeting minutes from the transscript.\n\
@@ -49,7 +47,7 @@ EXAMPLE_1_AI_SUGGESTIONS = "\n\
 
 
 @log_time
-def transscript_to_meeting_minutes(transscript, language):
+def transscript_to_meeting_minutes(transscript, language, openai):
     print("Creating meeting minutes from transscript")
     print()
 
@@ -64,19 +62,25 @@ def transscript_to_meeting_minutes(transscript, language):
         + EXAMPLE_1_AI_SUGGESTIONS
     )
 
-    url = "https://api.openai.com/v1/chat/completions"
     json_data = {
-        "model": "gpt-3.5-turbo",
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": transscript},
-        ],
-    }
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + OPENAI_API_KEY,
-    }
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": transscript},
+            ],
+        }
+    headers = {"Content-Type": "application/json"}
 
+    if openai:
+        url = "https://api.openai.com/v1/chat/completions"
+        json_data["model"] = "gpt-3.5-turbo"
+        headers["Authorization"] = "Bearer " + os.environ["OPENAI_API_KEY"]
+    else:
+        url = os.environ["LLM_URL"]
+        json_data["model"] = os.environ["LLM_MODEL"]
+        json_data["max_tokens"] = os.environ["LLM_MAX_TOKENS"]
+        headers ["Authorization"] = os.environ["LLM_AUTHORIZATION"]
+
+    print(f"Url used for LLM request: {url}")
     response = requests.post(url=url, json=json_data, headers=headers)
 
     return response.json()["choices"][0]["message"]["content"]
