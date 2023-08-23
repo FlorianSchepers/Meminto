@@ -15,16 +15,34 @@ Therefore, the diarization and transcription are excuted on your local device. N
 #1 clone Meminto repository
 git clone https://github.com/FlorianSchepers/Meminto.git
 cd Meminto
+
 #2 Install requirements
 pip install --user pipenv #if not alread installed
 pipenv install
 pipenv shell
 pip install -r requirements.txt
+
 #3 Set environment variables
-export HUGGING_FACE_ACCESS_TOKEN=YOUR_ACCESS_TOKEN #see https://huggingface.co/pyannote/speaker-diarization
+export HUGGING_FACE_ACCESS_TOKEN=YOUR_ACCESS_TOKEN #see TL;DR of https://huggingface.co/pyannote/speaker-diarization
+
+#Continue with either 3.1 or 3.2
+
+#3.1 if you want to use an arbitrary LLM 
+export LLM_URL=YOUR_LLM_URL #e.g. "https://api.openai.com/v1/chat/completions" for openAI
+export LLM_MODEL=YOUR_LLM_MODEL #e.g. "gpt-3.5-turbo"
+export LLM_MAX_TOKENS=YOUR_LLM_MAX_TOKENS #e.g. "4000"
+export LLM_AUTHORIZATION=YOUR_LLM_AUTHORIZATION #e.g. "Bearer <Your OpenAI API key>"
+
+#3.2 if you want to use OpenAIs GPT-3.5-Turbo
 export OPENAI_API_KEY=YOUR_KEY #see https://platform.openai.com/account/api-keys
-#4 run Meminto
+
+#Continue with either 4.1 or 4.2 according to your choice above
+
+#4.1 run Meminto with arbitraty LLM
 python -m main -f <file-path> #replace '<file-path>' with path to audio file 
+
+#4.2 run Meminto with gpt-3.5-turbo of OpenAI
+python -m main -f <file-path> --openai #replace '<file-path>' with path to audio file 
 ```
 
 ### Detailed description 
@@ -50,36 +68,63 @@ pip install -r requirements.txt #Install the requirements
 
 In order to download a pretrained `pyannote.audio` model for speaker diarization from Hugging Face you will need to accept their terms and get an Hugging Face access token. To do so follow the first three steps of the `TL;DR` at https://huggingface.co/pyannote/speaker-diarization.<br>
 Before running Meminto store your access token in an environment variable called `HUGGING_FACE_ACCESS_TOKEN`.<br>
+<br>
+On Linux/MacOS:
 ```Shell
-export HUGGING_FACE_ACCESS_TOKEN=YOUR_ACCESS_TOKEN #Linux/MacOS
+export HUGGING_FACE_ACCESS_TOKEN=YOUR_ACCESS_TOKEN
 ```
+On Windows Powershell:
 ```Powershell
 $Env:HUGGING_FACE_ACCESS_TOKEN = "YOUR_ACCESS_TOKEN" #Windows PowerShell
 ```
 
-
-##### OpenAI API key
-
-In order to make the project as accessible as possible the default LLM used in this project is OpenAIs 'GPT-3.5-Turbo'. Nevertheless, feel free to adapt the corresponding curl command in `transscript_to_meeting_minutes.py` to any LLM available to you.<br>
-However, in order to use the default 'GPT-3.5-Turbo' LLM you will need an OpenAI API key. If you do not have one get it here: https://platform.openai.com/account/api-keys.<br>
-Before running Meminto store your OpenAI key in the environment variable `OPENAI_API_KEY`.<br>
-```Shell
-export OPENAI_API_KEY=YOUR_KEY #Linux/MacOS
+##### Option 1: Required environment variables for an arbitrary LLM 
+In order to ensure privacy you should chose a LLM instance you trust. This could be a local instance or an instance e.g. from run by your company. In order for Meminto to communicate with the LLM of your choice you will need set the following environment variables before running Meminto:<br>
+<br>
+On Linux/MacOS:
+```shell
+export LLM_URL=YOUR_LLM_URL #e.g. "https://api.openai.com/v1/chat/completions" for openAI
+export LLM_MODEL=YOUR_LLM_MODEL #e.g. "gpt-3.5-turbo"
+export LLM_MAX_TOKENS=YOUR_LLM_MAX_TOKENS #e.g. "4000"
+export LLM_AUTHORIZATION=YOUR_LLM_AUTHORIZATION #e.g. "Bearer <Your OpenAI API key>"
 ```
+On Windows PowerShell:
 ```Powershell
-$Env:OPENAI_API_KEY = "YOUR_KEY" #Windows PowerShell
+$Env:LLM_URL = "YOUR_LLM_URL" #e.g. "https://api.openai.com/v1/chat/completions" for openAI
+$Env:LLM_MODEL = "YOUR_LLM_MODEL" #e.g. "gpt-3.5-turbo"
+$Env:LLM_MAX_TOKENS = "YOUR_LLM_MAX_TOKENS" #e.g. "4000"
+$Env:LLM_AUTHORIZATION= "YOUR_LLM_AUTHORIZATION" #e.g. "Bearer <Your OpenAI API key>"
+```
+
+##### Option 2: Required environment variables for using OpenAIs GPT-3.5-Turbo 
+
+As an alternative to Option 1 you can simply use Memintos pre-configuration for the OpenAI API of GPT-3.5-Turbo. In this case you only nee to store your OpenAI API key in the enviroment variable `OPENAI_API_KEY`. If you do not have one get it here: https://platform.openai.com/account/api-keys.<br>
+<br>
+Linux/MacOS:
+```Shell
+export OPENAI_API_KEY=YOUR_KEY
+```
+On Windows PowerShell:
+```Powershell
+$Env:OPENAI_API_KEY = "YOUR_KEY"
 ```
 
 #### How to run Meminto
 From the top level folder of Meminto run:
 ```shell
-python -m main -f <file-path>
+python main.py -f <file-path>
 ```
-Where `<file-path>` corresponds to the path of the audio file for which you want to create the meeting minutes. 
+Where `<file-path>` corresponds to the path of the audio file for which you want to create the meeting minutes. <br>
+<br>
+If you are want to use GPT-3.5-Turbo via the OpenAI API you can also use the `--openai` flag:
+```shell
+python main.py -f <file-path> --openai
+```
+However, keep in mind that for this option you still need to set the `OPENAI_API_KEY` environment variable as described above.
 
 ## Example (Scoreboard)
 
-### Transcript of `Scoreboard.wav` example
+### Transcript of `Scoreboard.wav`
 
 start=0.0s stop=1.1s speaker_SPEAKER_01:<br>
 and just continue.<br>
