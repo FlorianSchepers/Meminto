@@ -5,7 +5,7 @@ from decorators import log_time
 
 INSTRUCTIONS = "You are a team assistant and support the team with its daily work.\n\
 You will be handed the transcript of a meeting by the user.\n\
-Your task is to create meeting minutes from the transscript.\n\
+Your task is to create meeting minutes from the transcript.\n\
 Do not simply summarize the meeting, but extract the key decisions that were discussed.\n\
 The meeting minutes should have a headline that represents the general topic of the discussion.\n\
 The meetings minutes should have a section where the key decisions are listed.\n\
@@ -47,8 +47,8 @@ EXAMPLE_1_AI_SUGGESTIONS = "\n\
 
 
 @log_time
-def transscript_to_meeting_minutes(transscript, language, openai):
-    print("Creating meeting minutes from transscript")
+def transcript_to_meeting_minutes(transcript, language, openai):
+    print("Creating meeting minutes from transcript")
     print()
 
     system_prompt = (
@@ -65,7 +65,7 @@ def transscript_to_meeting_minutes(transscript, language, openai):
     json_data = {
             "messages": [
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": transscript},
+                {"role": "user", "content": transcript},
             ],
         }
     headers = {"Content-Type": "application/json"}

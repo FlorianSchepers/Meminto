@@ -4,8 +4,8 @@ from audio_processing import split_audio
 from decorators import log_time
 from diarization import diarize_audio, load_diarization, save_diarization
 from helpers import write_text_to_file
-from transscript_to_meeting_minutes import transscript_to_meeting_minutes
-from transscription import load_transscript, transscript_audio, save_transscript
+from transcript_to_meeting_minutes import transcript_to_meeting_minutes
+from transcription import load_transcript, transcript_audio, save_transcript
 
 ALLOWED_INPUT_FILE_TYPE = {".wav", ".mp3"}
 EXAMPLE_FILE_PATH = "examples/Scoreboard.wav"
@@ -18,11 +18,11 @@ def create_meeting_minutes(audio_source, language, openai):
 
     diarization = load_diarization("diarization.pkl")
     audio_sections = split_audio(audio_source, diarization)
-    transscript_sections = transscript_audio(audio_sections, language)
-    save_transscript(audio_sections, transscript_sections, "transscript.txt")
+    transcript_sections = transcript_audio(audio_sections, language)
+    save_transcript(audio_sections, transcript_sections, "transcript.txt")
 
-    transscript = load_transscript("transscript.txt")
-    meeting_minutes = transscript_to_meeting_minutes(transscript, language, openai)
+    transcript = load_transcript("transcript.txt")
+    meeting_minutes = transcript_to_meeting_minutes(transcript, language, openai)
     write_text_to_file(meeting_minutes, "meeting_minutes.txt")
     print(meeting_minutes)
 

@@ -81,16 +81,16 @@ def get_transcription_whisper(
 
 
 @log_time
-def transscript_audio(audio_sections, language):
-    print("Creating transscript from diarized audio")
-    section_transscripts = []
+def transcript_audio(audio_sections, language):
+    print("Creating transcript from diarized audio")
+    section_transcripts = []
     (whisper_processor, whisper_model) = setup_whisper(
         model_size=WHISPER_MODEL_SIZE.MEDIUM
     )
     total_number_of_sections = len(audio_sections)
     for section_number, section in enumerate(audio_sections):
         print(f"Transscribing section {section_number} of {total_number_of_sections}.")
-        section_transscripts.append(
+        section_transcripts.append(
             get_transcription_whisper(
                 section["audio"],
                 whisper_processor=whisper_processor,
@@ -99,20 +99,20 @@ def transscript_audio(audio_sections, language):
                 skip_special_tokens=True,
             )
         )
-    return section_transscripts
+    return section_transcripts
 
 
-def save_transscript(audio_sections, section_transscripts, file_path):
+def save_transcript(audio_sections, section_transcripts, file_path):
     with open(file_path, "w") as file:
         for idx, section in enumerate(audio_sections):
             file.write(
-                f"start={section['turn'].start:.1f}s stop={section['turn'].end:.1f}s speaker_{section['speaker']}:\n"
+                f"start={section['turn'].start:.1f}s stop={section['turn'].end:.1f}s speaker={section['speaker']}:\n"
             )
-            for batch in section_transscripts[idx]:
+            for batch in section_transcripts[idx]:
                 file.write(batch.strip())
             file.write("\n")
 
 
-def load_transscript(file_path):
+def load_transcript(file_path):
     with open(file_path, "r") as file:
         return file.read()
