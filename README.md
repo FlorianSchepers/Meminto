@@ -39,10 +39,10 @@ export OPENAI_API_KEY=YOUR_KEY #see https://platform.openai.com/account/api-keys
 #Continue with either 4.1 or 4.2 according to your choice above
 
 #4.1 run Meminto with arbitraty LLM
-python -m main -f <file-path> #replace '<file-path>' with path to audio file 
+python main.py -f <file-path> #replace '<file-path>' with path to audio file 
 
 #4.2 run Meminto with gpt-3.5-turbo of OpenAI
-python -m main -f <file-path> --openai #replace '<file-path>' with path to audio file 
+python main.py -f <file-path> --openai #replace '<file-path>' with path to audio file 
 ```
 
 ### Detailed description 
