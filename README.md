@@ -23,25 +23,24 @@ pipenv shell
 pip install -r requirements.txt
 
 #3 Set environment variables
+
+#Option 1: In case you want to use an arbitrary LLM 
 export HUGGING_FACE_ACCESS_TOKEN=YOUR_ACCESS_TOKEN #see TL;DR of https://huggingface.co/pyannote/speaker-diarization
-
-#Continue with either 3.1 or 3.2
-
-#3.1 if you want to use an arbitrary LLM 
 export LLM_URL=YOUR_LLM_URL #e.g. "https://api.openai.com/v1/chat/completions" for openAI
 export LLM_MODEL=YOUR_LLM_MODEL #e.g. "gpt-3.5-turbo"
 export LLM_MAX_TOKENS=YOUR_LLM_MAX_TOKENS #e.g. "4000"
 export LLM_AUTHORIZATION=YOUR_LLM_AUTHORIZATION #e.g. "Bearer <Your OpenAI API key>"
 
-#3.2 if you want to use OpenAIs GPT-3.5-Turbo
+#Option 2: In case you want to use OpenAIs GPT-3.5-Turbo
+export HUGGING_FACE_ACCESS_TOKEN=YOUR_ACCESS_TOKEN #see TL;DR of https://huggingface.co/pyannote/speaker-diarization
 export OPENAI_API_KEY=YOUR_KEY #see https://platform.openai.com/account/api-keys
 
-#Continue with either 4.1 or 4.2 according to your choice above
+#4 run Meminto 
 
-#4.1 run Meminto with arbitraty LLM
+#For Option 1 (arbitraty LLM)
 python main.py -f <file-path> #replace '<file-path>' with path to audio file 
 
-#4.2 run Meminto with gpt-3.5-turbo of OpenAI
+#For Option 2 (GPT-3.5-Turbo)
 python main.py -f <file-path> --openai #replace '<file-path>' with path to audio file 
 ```
 
