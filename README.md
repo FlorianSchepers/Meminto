@@ -47,9 +47,12 @@ python main.py -f <file-path> --openai #replace '<file-path>' with path to audio
 ### Detailed description 
 
 #### Meminto repository
-Clone the [Meminto](#https://github.com/FlorianSchepers/Meminto.git) repository by running and move the the top level folder<br>
+Clone the [Meminto](#https://github.com/FlorianSchepers/Meminto.git) repository by running <br>
 ```shell
 git clone https://github.com/FlorianSchepers/Meminto.git
+```
+and then move to its top level folder
+```shell
 cd Meminto
 ```
 #### Install requirements
@@ -76,6 +79,7 @@ On Windows Powershell:
 ```Powershell
 $Env:HUGGING_FACE_ACCESS_TOKEN = "YOUR_ACCESS_TOKEN" #Windows PowerShell
 ```
+**Note:** The Hugging face access token is required to be set for both of the below described options.
 
 ##### Option 1: Required environment variables for an arbitrary LLM 
 In order to ensure privacy you should chose a LLM instance you trust. This could be a local instance or an instance e.g. from run by your company. In order for Meminto to communicate with the LLM of your choice you will need set the following environment variables before running Meminto:<br>
@@ -96,8 +100,7 @@ $Env:LLM_AUTHORIZATION= "YOUR_LLM_AUTHORIZATION" #e.g. "Bearer <Your OpenAI API 
 ```
 
 ##### Option 2: Required environment variables for using OpenAIs GPT-3.5-Turbo 
-
-As an alternative to Option 1 you can simply use Memintos pre-configuration for the OpenAI API of GPT-3.5-Turbo. In this case you only nee to store your OpenAI API key in the enviroment variable `OPENAI_API_KEY`. If you do not have one get it here: https://platform.openai.com/account/api-keys.<br>
+As an alternative to Option 1 you can simply use Memintos pre-configuration for the OpenAI API of GPT-3.5-Turbo. In this case, you only need to store your OpenAI API key in the enviroment variable `OPENAI_API_KEY`. If you do not have one get it here: https://platform.openai.com/account/api-keys.<br>
 <br>
 Linux/MacOS:
 ```Shell
@@ -109,19 +112,22 @@ $Env:OPENAI_API_KEY = "YOUR_KEY"
 ```
 
 #### How to run Meminto
+
+##### Option 1 (arbitrary LLM)
 From the top level folder of Meminto run:
 ```shell
 python main.py -f <file-path>
 ```
 Where `<file-path>` corresponds to the path of the audio file for which you want to create the meeting minutes. <br>
-<br>
+
+##### Option 2 (GPT-3.5-Turbo)
 If you are want to use GPT-3.5-Turbo via the OpenAI API you can also use the `--openai` flag:
 ```shell
 python main.py -f <file-path> --openai
 ```
-However, keep in mind that for this option you still need to set the `OPENAI_API_KEY` environment variable as described above.
+However, keep in mind that for this option you still need to set the `OPENAI_API_KEY` and `HUGGING_FACE_ACCESS_TOKEN` environment variables as described above.
 
-## Example (Scoreboard)
+## Example: Scoreboard meeting
 
 ### Transcript of `Scoreboard.wav`
 
