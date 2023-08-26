@@ -1,14 +1,10 @@
-import pathlib
 import click
 from audio_processing import split_audio
 from decorators import log_time
 from diarization import diarize_audio, load_diarization, save_diarization
-from helpers import write_text_to_file
+from helpers import parse_input_file_path, select_language, write_text_to_file
 from transcript_to_meeting_minutes import transcript_to_meeting_minutes
 from transcription import load_transcript, transcript_audio, save_transcript
-
-ALLOWED_INPUT_FILE_TYPE = {".wav", ".mp3"}
-EXAMPLE_FILE_PATH = "examples/Scoreboard.wav"
 
 
 @log_time
@@ -27,25 +23,26 @@ def create_meeting_minutes(audio_source, language, openai):
     print(meeting_minutes)
 
 
-def parse_input_file_path(input_file):
-    file_path = (
-        pathlib.Path(input_file)
-        if input_file
-        else pathlib.Path(__file__).parent.resolve() / EXAMPLE_FILE_PATH
-    )
-    if not file_path.suffix in ALLOWED_INPUT_FILE_TYPE:
-        raise Exception(
-            f"Invalid input file type. Only one of the following file type are allowed: {', '.join(str(file_type) for file_type in ALLOWED_INPUT_FILE_TYPE)}"
-        )
-    return file_path
-
-
 @click.command()
 @click.option("-f", "--input-file")
-@click.option("--openai", is_flag=True, show_default=True, default=False, help="If set Meminto will use OpenAis gpt-3.5-turbo as default LLM. Otherwise it will use LLM specified in enviroment variables.")
-def main(input_file, openai) -> None:
+@click.option(
+    "-l",
+    "--language",
+    show_default=True,
+    default="english",
+    help="Select the language in which the meeting minutes should be generated. Currently supproted are 'english' and 'german'.",
+)
+@click.option(
+    "--openai",
+    is_flag=True,
+    show_default=True,
+    default=False,
+    help="If set Meminto will use OpenAis gpt-3.5-turbo as default LLM. Otherwise it will use LLM specified in enviroment variables.",
+)
+def main(input_file, language, openai) -> None:
     audio_source = parse_input_file_path(input_file)
-    language = "english"
+    language = select_language(language)
+    print(language)
     create_meeting_minutes(audio_source, language, openai)
 
 
