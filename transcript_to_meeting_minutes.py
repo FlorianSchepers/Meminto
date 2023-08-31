@@ -42,7 +42,7 @@ Speaker_02:\n\
     - Organises music\n"
 
 EXAMPLE_1_AI_SUGGESTIONS = "\n\
-**Ai suggestions:**\n\
+**AI suggestions:**\n\
     - Who organises a present for Adam?\n"
 
 

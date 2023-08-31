@@ -1,12 +1,12 @@
 # Meminto - The AI based Meeting Minutes Tool
 
-Meminto is an AI based tool to create meeting minutes. Just hand it an '.wav' audio file of a recorded meeting and it will automatically generate your meeting minutes.<br>
+Meminto is an AI based tool to create meeting minutes. Just hand it a '.wav' audio file of a recorded meeting and it will automatically generate your meeting minutes.<br>
 - In a first step it will use speaker-diarization of pyannote.audio in order to differentiate between the different speakers.<br>
 - It will then use whisper in order to generate an transcript of the meeting.<br>
-- Finally, it will use an LLM (current defaul GPT-3.5-Turbo) to generate the meeting minutes. 
+- Finally, it will use an LLM to generate the meeting minutes. 
 
-While there are a lot of commercially available tools to generate meeting notes, Meminto was intended to be an open source tool that gives the user control over its data.<br>
-Therefore, the diarization and transcription are excuted on your local device. Note however, that for the final creation of the meeting minutes Meminto uses OpenAIs GPT-3.5-Turbo as default LLM. Thus, in order to ensure that your data are not leaked you should adapt the corresponding function  `transscript_to_meeting_minutes` in `transscript_to_meeting_minutes.py` to use the LLM of your choice that you trust with your data. 
+While there are a lot of commercially available tools to generate meeting notes, Meminto was intended to be an open source tool that gives the users control over their data.<br>
+Therefore, the diarization and transcription are executed on your local device. Note however, that for the final creation of the meeting minutes Meminto uses OpenAIs GPT-3.5-Turbo as default LLM. Thus, in order to ensure that your data are not leaked you should adapt the corresponding function  `transscript_to_meeting_minutes` in `transscript_to_meeting_minutes.py` to use the LLM of your choice that you trust with your data. 
 
 ## How to setup and run Meminto
 
@@ -56,8 +56,8 @@ and then move to its top level folder
 cd Meminto
 ```
 #### Install requirements
-I recommended to use a Python version >=3.10.<br>
-Next, install the requirements from `requirements.txt`. I recommended to use some kind of virtual environment. You could for example use `pipenv` (https://pypi.org/project/pipenv/):<br>
+I recommend to use a Python version >=3.10.<br>
+Next, install the requirements from `requirements.txt`. I recommend to use some kind of virtual environment. You could for example use `pipenv` (https://pypi.org/project/pipenv/):<br>
 ```shell
 pip install --user pipenv #Install pipenv
 pipenv install #Create an new environment
@@ -68,8 +68,8 @@ pip install -r requirements.txt #Install the requirements
 
 ##### Hugging Face Access Token
 
-In order to download a pretrained `pyannote.audio` model for speaker diarization from Hugging Face you will need to accept their terms and get an Hugging Face access token. To do so follow the first three steps of the `TL;DR` at https://huggingface.co/pyannote/speaker-diarization.<br>
-Before running Meminto store your access token in an environment variable called `HUGGING_FACE_ACCESS_TOKEN`.<br>
+In order to download a pretrained `pyannote.audio` model for speaker diarization from Hugging Face you will need to accept their terms and get a Hugging Face access token. To do so follow the first three steps of the `TL;DR` at https://huggingface.co/pyannote/speaker-diarization.<br>
+Before running Meminto, store your access token in an environment variable called `HUGGING_FACE_ACCESS_TOKEN`.<br>
 <br>
 On Linux/MacOS:
 ```Shell
@@ -79,10 +79,10 @@ On Windows Powershell:
 ```Powershell
 $Env:HUGGING_FACE_ACCESS_TOKEN = "YOUR_ACCESS_TOKEN" #Windows PowerShell
 ```
-**Note:** The Hugging face access token is required to be set for both of the below described options.
+**Note:** The Hugging face access token is required to be set for both of the options described below .
 
 ##### Option 1: Required environment variables for an arbitrary LLM 
-In order to ensure privacy you should chose a LLM instance you trust. This could be a local instance or an instance e.g. from run by your company. In order for Meminto to communicate with the LLM of your choice you will need set the following environment variables before running Meminto:<br>
+In order to ensure privacy, you should choose an LLM instance you trust. This could be a local instance or an instance e.g. run by your company. In order for Meminto to communicate with the LLM of your choice, you will need set the following environment variables before running Meminto:<br>
 <br>
 On Linux/MacOS:
 ```shell
@@ -100,7 +100,7 @@ $Env:LLM_AUTHORIZATION= "YOUR_LLM_AUTHORIZATION" #e.g. "Bearer <Your OpenAI API 
 ```
 
 ##### Option 2: Required environment variables for using OpenAIs GPT-3.5-Turbo 
-As an alternative to Option 1 you can simply use Memintos pre-configuration for the OpenAI API of GPT-3.5-Turbo. In this case, you only need to store your OpenAI API key in the enviroment variable `OPENAI_API_KEY`. If you do not have one get it here: https://platform.openai.com/account/api-keys.<br>
+As an alternative to Option 1 you can simply use Meminto's pre-configuration for the OpenAI API of GPT-3.5-Turbo. In this case, you only need to store your OpenAI API key in the environment variable `OPENAI_API_KEY`. If you do not have one, get it here: https://platform.openai.com/account/api-keys.<br>
 <br>
 Linux/MacOS:
 ```Shell
@@ -121,7 +121,7 @@ python main.py -f <file-path>
 Where `<file-path>` corresponds to the path of the audio file for which you want to create the meeting minutes. <br>
 
 ##### Option 2 (GPT-3.5-Turbo)
-If you are want to use GPT-3.5-Turbo via the OpenAI API you can also use the `--openai` flag:
+If you want to use GPT-3.5-Turbo via the OpenAI API, you can also use the `--openai` flag:
 ```shell
 python main.py -f <file-path> --openai
 ```
@@ -225,3 +225,11 @@ SPEAKER_01:
 - Consider implementing a feature to reward players with high scores, such as virtual badges or achievements.
 - Create a backup system for the database to prevent data loss.
 - Test the performance of the high scoreboard with a large number of game entries.
+
+
+# Sources
+This project was created with the help of the tutorial 'Speech Recognition using Transformers in Python' by Abdeladim Fadheli. The source code of the tutorial is published under the MIT license here https://github.com/x4nth055/pythoncode-tutorials/tree/master/machine-learning/nlp/speech-recognition-transformers.<br>
+<br>
+Furthermore, the project uses pyannote.audio which is published under the MIT license and was published here:
+- Bredin et al., "pyannote.audio: neural building blocks for speaker diarization" ICASSP 2020, IEEE International Conference on Acoustics, Speech, and Signal Processing (2020)
+- Bredin et al., "End-to-end speaker segmentation for overlap-aware resegmentation" Proc. Interspeech 2021 (2021)
