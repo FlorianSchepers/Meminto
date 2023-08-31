@@ -231,5 +231,5 @@ SPEAKER_01:
 This project was created with the help of the tutorial 'Speech Recognition using Transformers in Python' by Abdeladim Fadheli. The source code of the tutorial is published under the MIT license here https://github.com/x4nth055/pythoncode-tutorials/tree/master/machine-learning/nlp/speech-recognition-transformers.<br>
 <br>
 Furthermore, the project uses pyannote.audio which is published under the MIT license and was published here:
-- Bredin et al., "pyannote.audio: neural building blocks for speaker diarization" ICASSP 2020, IEEE International Conference on Acoustics, Speech, and Signal Processing (2020)
-- Bredin et al., "End-to-end speaker segmentation for overlap-aware resegmentation" Proc. Interspeech 2021 (2021)
+- Bredin et al. *pyannote.audio: neural building blocks for speaker diarization*. ICASSP 2020, IEEE International Conference on Acoustics, Speech, and Signal Processing, (2020)
+- Bredin et al. *End-to-end speaker segmentation for overlap-aware resegmentation*. Proc. Interspeech 2021, (2021)
