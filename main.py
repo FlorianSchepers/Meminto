@@ -24,7 +24,7 @@ def create_meeting_minutes(audio_source, language, openai):
 
 
 @click.command()
-@click.option("-f", "--input-file")
+@click.option("-f", "--input-file", help="Path to the input audio file.")
 @click.option(
     "-l",
     "--language",
