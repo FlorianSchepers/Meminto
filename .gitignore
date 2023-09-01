@@ -5,3 +5,4 @@ transcript.txt
 meeting_minutes.txt
 time_log.txt
 .vscode
+Pipfile.lock

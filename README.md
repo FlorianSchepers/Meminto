@@ -126,8 +126,9 @@ If you want to use GPT-3.5-Turbo via the OpenAI API, you can also use the `--ope
 python main.py -f <file-path> --openai
 ```
 However, keep in mind that for this option you still need to set the `OPENAI_API_KEY` and `HUGGING_FACE_ACCESS_TOKEN` environment variables as described above.
-
 ## Example: Scoreboard meeting
+
+Location: `examples/Scoreboard.wav`
 
 ### Transcript of `Scoreboard.wav`
 
