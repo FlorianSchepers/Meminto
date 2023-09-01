@@ -6,7 +6,7 @@ Meminto is an AI based tool to create meeting minutes. Just hand it a '.wav' aud
 - Finally, it will use an LLM to generate the meeting minutes. 
 
 While there are a lot of commercially available tools to generate meeting notes, Meminto was intended to be an open source tool that gives the users control over their data.<br>
-Therefore, the diarization and transcription are executed on your local device. Note however, that for the final creation of the meeting minutes Meminto uses OpenAIs GPT-3.5-Turbo as default LLM. Thus, in order to ensure that your data are not leaked you should adapt the corresponding function  `transscript_to_meeting_minutes` in `transscript_to_meeting_minutes.py` to use the LLM of your choice that you trust with your data. 
+Therefore, the diarization and transcription are executed on your local device. Note however, that for the final creation of the meeting minutes the user needs to specify an LLM instance to use (see instructions below). It is in the responsibility of the user to choose an LLM instance with a sufficient degree of confidentiality.
 
 ## How to setup and run Meminto
 
@@ -79,7 +79,7 @@ On Windows Powershell:
 ```Powershell
 $Env:HUGGING_FACE_ACCESS_TOKEN = "YOUR_ACCESS_TOKEN" #Windows PowerShell
 ```
-**Note:** The Hugging face access token is required to be set for both of the options described below .
+**Note:** The Hugging face access token is required to be set for both of the options described below.
 
 ##### Option 1: Required environment variables for an arbitrary LLM 
 In order to ensure privacy, you should choose an LLM instance you trust. This could be a local instance or an instance e.g. run by your company. In order for Meminto to communicate with the LLM of your choice, you will need set the following environment variables before running Meminto:<br>
@@ -118,7 +118,7 @@ From the top level folder of Meminto run:
 ```shell
 python main.py -f <file-path>
 ```
-Where `<file-path>` corresponds to the path of the audio file for which you want to create the meeting minutes. <br>
+Where `<file-path>` corresponds to the path of the audio file for which you want to create the meeting minutes. There is an example file stored at `examples/Scoreboard.wav`.<br>
 
 ##### Option 2 (GPT-3.5-Turbo)
 If you want to use GPT-3.5-Turbo via the OpenAI API, you can also use the `--openai` flag:
