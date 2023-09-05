@@ -2,12 +2,15 @@ from enum import Enum
 import pathlib
 import pickle
 
+
 class Language(Enum):
-    GERMAN = 'german'
-    ENGLISH = 'english'
+    GERMAN = "german"
+    ENGLISH = "english"
+
 
 ALLOWED_INPUT_FILE_TYPE = {".wav", ".mp3"}
 EXAMPLE_FILE_PATH = "examples/Scoreboard.wav"
+
 
 def select_language(language):
     match language:
@@ -17,7 +20,8 @@ def select_language(language):
             return Language.GERMAN.value
         case _:
             return Language.ENGLISH.value
-        
+
+
 def parse_input_file_path(input_file):
     file_path = (
         pathlib.Path(input_file)
@@ -30,9 +34,11 @@ def parse_input_file_path(input_file):
         )
     return file_path
 
+
 def write_text_to_file(text, file_path):
     with open(file_path, "w") as file:
         file.write(text)
+
 
 def load_pkl(file_path):
     with open(file_path, "rb") as file:
