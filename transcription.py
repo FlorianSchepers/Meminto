@@ -134,7 +134,7 @@ def create_transcript(audio_sections, language) -> list[TranscriptSection]:
 
 
 def save_transcript_as_txt(transcript: list[TranscriptSection], file_name):
-    with open(file_name + ".txt", "w") as file:
+    with open(file_name, "w") as file:
         for transcript_section in transcript:
             file.write(
                 f"start={transcript_section.start:.1f}s \

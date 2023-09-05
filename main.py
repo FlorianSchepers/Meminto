@@ -26,7 +26,7 @@ def create_meeting_minutes(audio_source, language, openai):
     audio_sections = split_audio(audio_source, diarization)
     transcript = create_transcript(audio_sections, language)
     save_as_pkl(transcript, "transcript.pkl")
-    save_transcript_as_txt(audio_sections, transcript, "transcript.txt")
+    save_transcript_as_txt(transcript, "transcript.txt")
 
     transcript: list[TranscriptSection] = load_pkl("transcript.pkl")
     print("".join(map(str, transcript)))
