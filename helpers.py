@@ -1,5 +1,6 @@
 from enum import Enum
 import pathlib
+import pickle
 
 class Language(Enum):
     GERMAN = 'german'
@@ -32,3 +33,12 @@ def parse_input_file_path(input_file):
 def write_text_to_file(text, file_path):
     with open(file_path, "w") as file:
         file.write(text)
+
+def load_pkl(file_path):
+    with open(file_path, "rb") as file:
+        return pickle.load(file)
+
+
+def save_as_pkl(content, file_path):
+    with open(file_path, "wb") as file:
+        pickle.dump(content, file, pickle.HIGHEST_PROTOCOL)

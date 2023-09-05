@@ -1,8 +1,8 @@
 import click
 from audio_processing import split_audio
 from decorators import log_time
-from diarization import diarize_audio, load_diarization, save_diarization
-from helpers import parse_input_file_path, select_language, write_text_to_file
+from diarization import diarize_audio
+from helpers import load_pkl, parse_input_file_path, save_as_pkl, select_language, write_text_to_file
 from transcript_to_meeting_minutes import transcript_to_meeting_minutes
 from transcription import load_transcript, transcript_audio, save_transcript
 
@@ -10,11 +10,12 @@ from transcription import load_transcript, transcript_audio, save_transcript
 @log_time
 def create_meeting_minutes(audio_source, language, openai):
     diarization = diarize_audio(audio_source)
-    save_diarization(diarization, "diarization.pkl")
+    save_as_pkl(diarization, "diarization.pkl")
 
-    diarization = load_diarization("diarization.pkl")
+    diarization = load_pkl("diarization.pkl")
     audio_sections = split_audio(audio_source, diarization)
     transcript_sections = transcript_audio(audio_sections, language)
+    save_as_pkl(transcript_sections, "transcript.pkl")
     save_transcript(audio_sections, transcript_sections, "transcript.txt")
 
     transcript = load_transcript("transcript.txt")

@@ -2,6 +2,7 @@ Pipfile
 __pycache__/
 diarization.pkl
 transcript.txt
+transcript.pkl
 meeting_minutes.txt
 time_log.txt
 .vscode
