@@ -137,9 +137,9 @@ def save_transcript_as_txt(transcript: list[TranscriptSection], file_name):
     with open(file_name, "w") as file:
         for transcript_section in transcript:
             file.write(
-                f"start={transcript_section.start:.1f}s \
-                    end={transcript_section.end:.1f}s \
-                    speaker={transcript_section.speaker}:\n"
+                f"start={transcript_section.start:.1f}s "
+                + f"end={transcript_section.end:.1f}s "
+                + f"speaker={transcript_section.speaker}:\n"
             )
             file.write(transcript_section.text)
             file.write("\n")

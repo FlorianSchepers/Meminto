@@ -9,7 +9,7 @@ from helpers import (
     select_language,
     write_text_to_file,
 )
-from transcript_to_meeting_minutes import transcript_to_meeting_minutes
+from transcript_to_meeting_minutes import get_merged_meeting_minutes, transcript_to_meeting_minutes
 from transcription import (
     TranscriptSection,
     create_transcript,
@@ -18,7 +18,7 @@ from transcription import (
 
 
 @log_time
-def create_meeting_minutes(audio_source, language, openai):
+def create_meeting_minutes(audio_source, language):
     diarization = diarize_audio(audio_source)
     save_as_pkl(diarization, "diarization.pkl")
 
@@ -29,12 +29,13 @@ def create_meeting_minutes(audio_source, language, openai):
     save_transcript_as_txt(transcript, "transcript.txt")
 
     transcript: list[TranscriptSection] = load_pkl("transcript.pkl")
-    print("".join(map(str, transcript)))
-    meeting_minutes = transcript_to_meeting_minutes(
-        "".join(map(str, transcript)), language, openai
+    batched_meeting_minutes = transcript_to_meeting_minutes(
+        transcript, language
     )
-    write_text_to_file(meeting_minutes, "meeting_minutes.txt")
-    print(meeting_minutes)
+    
+    merged_meeting_minutes = get_merged_meeting_minutes(batched_meeting_minutes, language)
+    print(merged_meeting_minutes)
+    write_text_to_file(merged_meeting_minutes, "meeting_minutes.txt")
 
 
 @click.command()
@@ -46,19 +47,11 @@ def create_meeting_minutes(audio_source, language, openai):
     default="english",
     help="Select the language in which the meeting minutes should be generated. Currently supproted are 'english' and 'german'.",
 )
-@click.option(
-    "--openai",
-    is_flag=True,
-    show_default=True,
-    default=False,
-    help="If set Meminto will use OpenAis gpt-3.5-turbo as default LLM. Otherwise it will use LLM specified in enviroment variables.",
-)
-def main(input_file, language, openai) -> None:
+def main(input_file, language) -> None:
     audio_source = parse_input_file_path(input_file)
     language = select_language(language)
     print(language)
-    create_meeting_minutes(audio_source, language, openai)
-
+    create_meeting_minutes(audio_source, language)
 
 if __name__ == "__main__":
     main()

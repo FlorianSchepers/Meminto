@@ -1,8 +1,7 @@
 import os
 import requests
 
-def get_chat_completion(system_prompt, user_prompt, openai):
-
+def get_chat_completion(system_prompt, user_prompt):
     json_data = {
             "messages": [
                 {"role": "system", "content": system_prompt},
@@ -11,15 +10,11 @@ def get_chat_completion(system_prompt, user_prompt, openai):
         }
     headers = {"Content-Type": "application/json"}
 
-    if openai:
-        url = "https://api.openai.com/v1/chat/completions"
-        json_data["model"] = "gpt-3.5-turbo"
-        headers["Authorization"] = "Bearer " + os.environ["OPENAI_API_KEY"]
-    else:
-        url = os.environ["LLM_URL"]
-        json_data["model"] = os.environ["LLM_MODEL"]
+    url = os.environ["LLM_URL"]
+    json_data["model"] = os.environ["LLM_MODEL"]
+    if os.environ["LLM_MODEL"] not in {"gpt-3.5-turbo", "gpt-4"}:
         json_data["max_tokens"] = os.environ["LLM_MAX_TOKENS"]
-        headers ["Authorization"] = os.environ["LLM_AUTHORIZATION"]
+    headers ["Authorization"] = os.environ["LLM_AUTHORIZATION"]
 
     print(f"Url used for LLM request: {url}")
     response = requests.post(url=url, json=json_data, headers=headers)
