@@ -9,7 +9,11 @@ from helpers import (
     select_language,
     write_text_to_file,
 )
-from transcript_to_meeting_minutes import get_merged_meeting_minutes, transcript_to_meeting_minutes
+from transcript_to_meeting_minutes import (
+    batched_meeting_minutes_to_text,
+    get_merged_meeting_minutes,
+    transcript_to_meeting_minutes,
+)
 from transcription import (
     TranscriptSection,
     create_transcript,
@@ -20,22 +24,24 @@ from transcription import (
 @log_time
 def create_meeting_minutes(audio_source, language):
     diarization = diarize_audio(audio_source)
-    save_as_pkl(diarization, "diarization.pkl")
+    save_as_pkl(diarization, "output/diarization.pkl")
 
-    diarization = load_pkl("diarization.pkl")
+    diarization = load_pkl("output/diarization.pkl")
     audio_sections = split_audio(audio_source, diarization)
     transcript = create_transcript(audio_sections, language)
-    save_as_pkl(transcript, "transcript.pkl")
-    save_transcript_as_txt(transcript, "transcript.txt")
+    save_as_pkl(transcript, "output/transcript.pkl")
+    save_transcript_as_txt(transcript, "output/transcript.txt")
 
-    transcript: list[TranscriptSection] = load_pkl("transcript.pkl")
-    batched_meeting_minutes = transcript_to_meeting_minutes(
+    transcript: list[TranscriptSection] = load_pkl("output/transcript.pkl")
+    merged_meeting_minutes, batched_meeting_minutes = transcript_to_meeting_minutes(
         transcript, language
     )
-    
-    merged_meeting_minutes = get_merged_meeting_minutes(batched_meeting_minutes, language)
     print(merged_meeting_minutes)
-    write_text_to_file(merged_meeting_minutes, "meeting_minutes.txt")
+    write_text_to_file(
+        batched_meeting_minutes_to_text(batched_meeting_minutes),
+        "output/batched_meeting_minutes.txt",
+    )
+    write_text_to_file(merged_meeting_minutes, "output/meeting_minutes.txt")
 
 
 @click.command()
@@ -52,6 +58,7 @@ def main(input_file, language) -> None:
     language = select_language(language)
     print(language)
     create_meeting_minutes(audio_source, language)
+
 
 if __name__ == "__main__":
     main()
