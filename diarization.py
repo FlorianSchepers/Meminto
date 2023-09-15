@@ -1,6 +1,5 @@
 import os
 from pyannote.audio import Pipeline
-
 from decorators import log_time
 
 HUGGING_FACE_ACCESS_TOKEN = os.environ["HUGGING_FACE_ACCESS_TOKEN"]

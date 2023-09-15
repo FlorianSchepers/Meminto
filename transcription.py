@@ -4,7 +4,6 @@ import torch
 from transformers import *
 from audio_processing import SAMPLING_RATE, batch
 from decorators import log_time
-from helpers import save_as_pkl
 
 
 class WHISPER_MODEL_SIZE(Enum):

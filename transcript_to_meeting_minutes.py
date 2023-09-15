@@ -1,5 +1,5 @@
 from decorators import log_time
-from llm_inference.llm_inference import LLM_MAX_TOKENS, LLM_MODEL, infer_llm
+from llm.llm_inference import LLM_MAX_TOKENS, LLM_MODEL, infer_llm
 from prompts import (
     AI_SUGGESTIONS,
     CONTEXT,
@@ -12,7 +12,7 @@ from prompts import (
     INSTRUCTIONS_MERGE_MEETING_MINUTES,
     SELECT_LANGUAGE,
 )
-from llm_inference.tokenizers import get_token_count, get_token_count_for_inference
+from llm.tokenizers import get_token_count, get_token_count_for_inference
 from transcription import TranscriptSection
 
 TOKEN_COUNT_RESERVED_FOR_RESPONSE = 1000

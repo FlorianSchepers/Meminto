@@ -1,7 +1,7 @@
 import tiktoken
 from sentencepiece import SentencePieceProcessor
 
-from llm_inference.llm_inference import LLM_MODEL
+from llm.llm_inference import LLM_MODEL
 
 
 def get_tiktoken_count(content, model):
@@ -10,7 +10,7 @@ def get_tiktoken_count(content, model):
 
 
 def get_sentencepiece_count(content):
-    sp_model = SentencePieceProcessor("llm_inference/tokenizer.model")
+    sp_model = SentencePieceProcessor("llm/tokenizer.model")
     return len(sp_model.encode(content))
 
 
