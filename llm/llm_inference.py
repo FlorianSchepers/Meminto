@@ -36,8 +36,8 @@ def get_headers():
 def infer_llm(system_prompt, user_prompt):
     json_data = get_json_data(system_prompt, user_prompt)
     headers = get_headers()
-    print(json_data)
+    
     print(f"Url used for LLM request: {LLM_URL}")
     response = requests.post(url=LLM_URL, json=json_data, headers=headers)
-    print(response)
+
     return response.json()["choices"][0]["message"]["content"]

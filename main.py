@@ -22,14 +22,14 @@ from transcription import (
 
 @log_time
 def create_meeting_minutes(audio_source, language):
-    # diarization = diarize_audio(audio_source)
-    # save_as_pkl(diarization, "output/diarization.pkl")
+    diarization = diarize_audio(audio_source)
+    save_as_pkl(diarization, "output/diarization.pkl")
 
-    # diarization = load_pkl("output/diarization.pkl")
-    # audio_sections = split_audio(audio_source, diarization)
-    # transcript = create_transcript(audio_sections, language)
-    # save_as_pkl(transcript, "output/transcript.pkl")
-    # save_transcript_as_txt(transcript, "output/transcript.txt")
+    diarization = load_pkl("output/diarization.pkl")
+    audio_sections = split_audio(audio_source, diarization)
+    transcript = create_transcript(audio_sections, language)
+    save_as_pkl(transcript, "output/transcript.pkl")
+    save_transcript_as_txt(transcript, "output/transcript.txt")
 
     transcript: list[TranscriptSection] = load_pkl("output/transcript.pkl")
     merged_meeting_minutes, batched_meeting_minutes = transcript_to_meeting_minutes(

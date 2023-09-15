@@ -21,15 +21,13 @@ EXAMPLE_INPUT = "Part 1\n\
 \n\
 **Key Decisions:**\n\
 \n\
-Suprise:\n\
     - Suprise Adam when he comes back home.\n\
-    - Everybody hides in the kitchen until Adam enters the flat.\n\
-    - When Adam enters the flat everybody sings Happy Birthday.\n\
+    - Everybody hides in the kitchen until Adam enters the apartment.\n\
+    - When Adam enters the apartment everybody sings Happy Birthday.\n\
 \n\
 **Assigned Tasks:**\n\
 \n\
-SPEAKER_00:\n\
-    - Organises the Key to the flat of Adam.\n\
+SPEAKER_02: Organises the Key to the apartment of Adam.\n\
 \n\
 **AI suggestions:**\n\
     - Who organises a present for Adam?\n\
@@ -39,20 +37,15 @@ Part 2\n\
 \n\
 **Key Decisions:**\n\
 \n\
-Party:\n\
     - Afterward the suprise there will be a party with music, cake and soft drinks.\n\
     - The Party should not be longer then 11 o'clock as everbody need to work the next day.\n\
 \n\
 **Assigned Tasks:**\n\
 \n\
-SPEAKER_00:\n\
-    - Buys Snacks\n\
-SPEAKER_01:\n\
-    - Buys Drinks\n\
-Speaker_02:\n\
-    - Organises music\n\
-Speaker_03:\n\
-    - No task assigned\n\
+SPEAKER_01: Buys Drinks\n\
+Speaker_02: Organises music\n\
+SPEAKER_00: Buys Snacks\n\
+Speaker_03: No task assigned\n\
 \n\
 **AI suggestions:**\n\
     - Who invites Adams other friends to the party?\n"
@@ -65,10 +58,45 @@ EXAMPLE_1 = "**Meeting Topic:** Surprise Party Adam\n\
 \n\
 **Key Decisions:**\n\
 \n\
+    - Suprise Adam when he comes back home.\n\
+    - Everybody hides in the kitchen until Adam enters the apartment.\n\
+    - When Adam enters the apartment everybody sings Happy Birthday.\n\
+    - Afterward there will be a party with music, cake and soft drinks.\n\
+    - The Party should not be longer then 11 o'clock as everbody need to work the next day.\n\
+\n\
+**Assigned Tasks:**\n\
+\n\
+SPEAKER_02: Organises the Key to the apartment of Adam.\n\
+SPEAKER_01: Buys Drinks\n\
+Speaker_02: Organises music\n\
+SPEAKER_00: Buys Snacks\n\
+Speaker_03: No task assigned\n"
+
+EXAMPLE_1_AI_SUGGESTIONS = "\n\
+**AI suggestions:**\n\
+    - Who organises a present for Adam?\n\
+    - Who invites Adams other friends to the party?\n\
+    - Who will inform the neighbours it might get a bit louder?\n\
+    - It might be nice to decorate Adams apartment for the party."
+
+INSTRUCTIONS_MERGE_MEETING_MINUTES="\
+The meeting transcript was to long to be processed at once.\n\
+It has been split into multiple sections.\n\
+For each section individual meeting minutes have been created in a previous step.\n\
+You will be handed the different meeting minutes of all sections of the meeting in chronological order.\n\
+Your task is to create the meeting minutes for the whole meeting based on the meeting minutes of the different sections of the meeting.\n"
+
+
+
+
+EXAMPLE_POSTPROCESS = "**Meeting Topic:** Surprise Party Adam\n\
+\n\
+**Key Decisions:**\n\
+\n\
 Suprise:\n\
     - Suprise Adam when he comes back home.\n\
-    - Everybody hides in the kitchen until Adam enters the flat.\n\
-    - When Adam enters the flat everybody sings Happy Birthday.\n\
+    - Everybody hides in the kitchen until Adam enters the apartment.\n\
+    - When Adam enters the apartment everybody sings Happy Birthday.\n\
 Party:\n\
     - Afterward there will be a party with music, cake and soft drinks.\n\
     - The Party should not be longer then 11 o'clock as everbody need to work the next day.\n\
@@ -76,7 +104,7 @@ Party:\n\
 **Assigned Tasks:**\n\
 \n\
 SPEAKER_00:\n\
-    - Organises the Key to the flat of Adam.\n\
+    - Organises the Key to the apartment of Adam.\n\
     - Buys Snacks\n\
 SPEAKER_01:\n\
     - Buys Drinks\n\
@@ -85,14 +113,8 @@ Speaker_02:\n\
 Speaker_03:\n\
     - No task assigned\n"
 
-EXAMPLE_1_AI_SUGGESTIONS = "\n\
+EXAMPLE_POSTPROCESS_AI_SUGGESTIONS = "\n\
 **AI suggestions:**\n\
     - Who organises a present for Adam?\n\
-    - Who invites Adams other friends to the party?\n"
-
-INSTRUCTIONS_MERGE_MEETING_MINUTES="\
-The meeting transcript was to long to be processed at once.\n\
-It has been split into multiple sections.\n\
-For each section individual meeting minutes have been created in a previous step.\n\
-You will be handed the different meeting minutes of all sections of the meeting in chronological order.\n\
-Your task is to create the meeting minutes for the whole meeting based on the meeting minutes of the different sections of the meeting.\n"
+    - Who invites Adams other friends to the party?\n\
+    - Who will inform the neighbours it might get a bit louder?\n"
