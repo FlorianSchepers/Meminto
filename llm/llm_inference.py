@@ -5,18 +5,15 @@ LLM_URL = os.environ["LLM_URL"]
 LLM_MODEL = os.environ["LLM_MODEL"]
 LLM_AUTHORIZATION = os.environ["LLM_AUTHORIZATION"]
 LLM_MAX_TOKENS = os.environ["LLM_MAX_TOKENS"] if "LLM_MAX_TOKENS" in os.environ else "4000"
-LLM_TEMPERATURE = os.environ["LLM_TEMPERATURE"] if "LLM_TEMPERATURE" in os.environ else "0.6"
 
 def get_json_data(system_prompt, user_prompt):
     json_data = {}
 
     json_data["model"] = LLM_MODEL
-    json_data["temperature"] = LLM_TEMPERATURE
+    json_data["temperature"] = 0.001
+    json_data["max_tokens"] = int(LLM_MAX_TOKENS)
 
-    if LLM_MODEL not in {"gpt-3.5-turbo", "gpt-4"}:
-        json_data["max_tokens"] = LLM_MAX_TOKENS
-
-    if LLM_MODEL == "llama2-chat":
+    if LLM_MODEL == "Llama-2-70b-chat-hf":
         system_prompt = "<s>[INST] <<SYS>>\n" + system_prompt + "\n<</SYS>>\n\n"
         user_prompt = user_prompt + "[/INST]"
 
@@ -39,5 +36,4 @@ def infer_llm(system_prompt, user_prompt):
     
     print(f"Url used for LLM request: {LLM_URL}")
     response = requests.post(url=LLM_URL, json=json_data, headers=headers)
-
     return response.json()["choices"][0]["message"]["content"]

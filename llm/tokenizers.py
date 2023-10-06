@@ -17,7 +17,7 @@ def get_sentencepiece_count(content):
 def get_token_count(content, model):
     if model in tiktoken.model.MODEL_TO_ENCODING.keys():
         return get_tiktoken_count(content, model)
-    elif model in {"llama", "llama2"}:
+    elif model in {"llama", "llama2", "Llama-2-70b-chat-hf"}:
         return get_sentencepiece_count(content)
     else:
         return get_sentencepiece_count(content)

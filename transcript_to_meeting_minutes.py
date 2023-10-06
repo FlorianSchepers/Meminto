@@ -1,13 +1,11 @@
 from decorators import log_time
 from llm.llm_inference import LLM_MAX_TOKENS, LLM_MODEL, infer_llm
 from prompts import (
-    AI_SUGGESTIONS,
     CONTEXT,
-    EXAMPLE_1,
-    EXAMPLE_1_AI_SUGGESTIONS,
     EXAMPLE_INPUT,
     EXAMPLE_INPUT_INTRO,
-    EXAMPLE_INTRO,
+    EXAMPLE_OUTPUT,
+    EXAMPLE_OUTPUT_INTRO,
     INSTRUCTIONS_CREATE_MEETING_MINUTES,
     INSTRUCTIONS_MERGE_MEETING_MINUTES,
     SELECT_LANGUAGE,
@@ -61,11 +59,24 @@ def get_batched_transcript(system_prompt, transcript: list[TranscriptSection]):
     return batched_transcript
 
 
-def get_batched_meeting_minutes(system_prompt, batched_transcript):
+def get_batched_meeting_minutes(transcript, language):
+    system_prompt = (
+        CONTEXT
+        + INSTRUCTIONS_CREATE_MEETING_MINUTES
+        + SELECT_LANGUAGE
+        + language
+        + ".\n"
+        + EXAMPLE_OUTPUT_INTRO
+        + EXAMPLE_OUTPUT
+    )
+
+    batched_transcript = get_batched_transcript(system_prompt, transcript)
+
     batched_meeting_minutes = []
     for batch in batched_transcript:
         batch_txt = "".join(map(str, batch))
         batched_meeting_minutes.append(infer_llm(system_prompt, batch_txt))
+
     return batched_meeting_minutes
 
 
@@ -73,7 +84,7 @@ def batched_meeting_minutes_to_text(batched_meeting_minutes):
     batched_meeting_minutes_txt = ""
     for idx, batch in enumerate(batched_meeting_minutes):
         batched_meeting_minutes_txt = (
-            batched_meeting_minutes_txt + f"Part {idx+1}\n" + batch + "\n\n"
+            batched_meeting_minutes_txt + f"Section {idx+1}\n" + batch + "\n\n"
         )
     return batched_meeting_minutes_txt
 
@@ -85,22 +96,18 @@ def get_merged_meeting_minutes(batched_meeting_minutes, language):
     system_prompt = (
         CONTEXT
         + INSTRUCTIONS_MERGE_MEETING_MINUTES
-        + AI_SUGGESTIONS
         + SELECT_LANGUAGE
         + language
         + ".\n"
         + EXAMPLE_INPUT_INTRO
         + EXAMPLE_INPUT
-        + EXAMPLE_INTRO
-        + EXAMPLE_1
-        + EXAMPLE_1_AI_SUGGESTIONS
+        + EXAMPLE_OUTPUT_INTRO
+        + EXAMPLE_OUTPUT
     )
 
     batched_meeting_minutes_as_text = batched_meeting_minutes_to_text(
         batched_meeting_minutes
     )
-    print(batched_meeting_minutes_as_text)
-    print()
 
     get_token_count_for_inference(system_prompt, batched_meeting_minutes_as_text)
     return infer_llm(system_prompt, batched_meeting_minutes_as_text)
@@ -108,26 +115,20 @@ def get_merged_meeting_minutes(batched_meeting_minutes, language):
 
 @log_time
 def transcript_to_meeting_minutes(transcript: list[TranscriptSection], language):
-    system_prompt = (
-        CONTEXT
-        + INSTRUCTIONS_CREATE_MEETING_MINUTES
-        + AI_SUGGESTIONS
-        + SELECT_LANGUAGE
-        + language
-        + ".\n"
-        + EXAMPLE_INTRO
-        + EXAMPLE_1
-        + EXAMPLE_1_AI_SUGGESTIONS
-    )
-
-    batched_transcript = get_batched_transcript(system_prompt, transcript)
 
     batched_meeting_minutes = get_batched_meeting_minutes(
-        system_prompt, batched_transcript
+        transcript, language
     )
-
+    batched_meeting_minutes_as_text = batched_meeting_minutes_to_text(
+        batched_meeting_minutes
+    )
+    print("----------------------------- batched_meeting_minutes_as_text ------------------------------------")
+    print(batched_meeting_minutes_as_text)
+    merged_meeting_minutes =""
     merged_meeting_minutes = get_merged_meeting_minutes(
         batched_meeting_minutes, language
     )
+    print("----------------------------- merged_meeting_minutes ------------------------------------")
+    print(merged_meeting_minutes)
 
     return (merged_meeting_minutes, batched_meeting_minutes)
