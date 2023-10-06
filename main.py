@@ -35,7 +35,6 @@ def create_meeting_minutes(audio_source, language):
     merged_meeting_minutes, batched_meeting_minutes = transcript_to_meeting_minutes(
         transcript, language
     )
-    print(merged_meeting_minutes)
     write_text_to_file(
         batched_meeting_minutes_to_text(batched_meeting_minutes),
         "output/batched_meeting_minutes.txt",
@@ -55,7 +54,6 @@ def create_meeting_minutes(audio_source, language):
 def main(input_file, language) -> None:
     audio_source = parse_input_file_path(input_file)
     language = select_language(language)
-    print(language)
     create_meeting_minutes(audio_source, language)
 
 
