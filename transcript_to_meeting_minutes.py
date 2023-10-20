@@ -115,7 +115,6 @@ def get_merged_meeting_minutes(batched_meeting_minutes, language):
 
 @log_time
 def transcript_to_meeting_minutes(transcript: list[TranscriptSection], language):
-
     batched_meeting_minutes = get_batched_meeting_minutes(
         transcript, language
     )

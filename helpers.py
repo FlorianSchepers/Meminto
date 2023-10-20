@@ -23,17 +23,29 @@ def select_language(language):
 
 
 def parse_input_file_path(input_file):
-    file_path = (
-        pathlib.Path(input_file)
-        if input_file
-        else pathlib.Path(__file__).parent.resolve() / EXAMPLE_FILE_PATH
-    )
+    file_path = pathlib.Path(input_file)
+    
+    if not file_path.exists():
+        raise Exception(
+            f"Input file does not exist at given file path: {file_path}"
+        )  
+
     if not file_path.suffix in ALLOWED_INPUT_FILE_TYPE:
         raise Exception(
             f"Invalid input file type. Only one of the following file type are allowed: {', '.join(str(file_type) for file_type in ALLOWED_INPUT_FILE_TYPE)}"
         )
-    return file_path
+        
+    return file_path.resolve()
 
+def parse_output_folder_path(output_folder):
+    output_folder_path = pathlib.Path(output_folder)
+
+    if not output_folder_path.exists():
+        raise Exception(
+            f"Output folder does not exist at given folder path: {output_folder}"
+        )  
+        
+    return output_folder_path.resolve()  
 
 def write_text_to_file(text, file_path):
     with open(file_path, "w") as file:
