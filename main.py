@@ -1,9 +1,10 @@
-import pathlib
+from pathlib import Path
 import click
 from audio_processing import split_audio
 from decorators import log_time
 from diarization import diarize_audio
 from helpers import (
+    Language,
     load_pkl,
     parse_input_file_path,
     parse_output_folder_path,
@@ -21,12 +22,12 @@ from transcription import (
     save_transcript_as_txt,
 )
 
-EXAMPLE_INPUT_FILE = pathlib.Path(__file__).parent.resolve() / "examples/Scoreboard.wav"
-DEFAULT_OUTPUT_FOLDER = pathlib.Path(__file__).parent.resolve() / "output"
+EXAMPLE_INPUT_FILE = Path(__file__).parent.resolve() / "examples/Scoreboard.wav"
+DEFAULT_OUTPUT_FOLDER = Path(__file__).parent.resolve() / "output"
 
 
 @log_time
-def create_meeting_minutes(audio_input_file_path, output_folder_path, language):
+def create_meeting_minutes(audio_input_file_path: Path, output_folder_path: Path, language :Language):
     diarization = diarize_audio(audio_input_file_path)
     save_as_pkl(diarization, output_folder_path / "diarization.pkl")
 
@@ -35,8 +36,8 @@ def create_meeting_minutes(audio_input_file_path, output_folder_path, language):
     transcript = create_transcript(audio_sections, language)
     save_as_pkl(transcript, output_folder_path / "transcript.pkl")
     save_transcript_as_txt(transcript, output_folder_path / "transcript.txt")
-
-    transcript: list[TranscriptSection] = load_pkl(
+    
+    transcript = load_pkl(
         output_folder_path / "transcript.pkl"
     )
     merged_meeting_minutes, batched_meeting_minutes = transcript_to_meeting_minutes(
@@ -73,11 +74,11 @@ def create_meeting_minutes(audio_input_file_path, output_folder_path, language):
     default="english",
     help="Select the language in which the meeting minutes should be generated. Currently supproted are 'english' and 'german'.",
 )
-def main(input_file, output_folder, language) -> None:
+def main(input_file: str, output_folder: str, language :str) -> None:
     audio_input_file_path = parse_input_file_path(input_file)
     output_folder_path = parse_output_folder_path(output_folder)
-    language = select_language(language)
-    create_meeting_minutes(audio_input_file_path, output_folder_path, language)
+    selected_language = select_language(language)
+    create_meeting_minutes(audio_input_file_path, output_folder_path, selected_language)
 
 
 if __name__ == "__main__":
