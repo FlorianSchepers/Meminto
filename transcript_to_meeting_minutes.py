@@ -102,9 +102,6 @@ def batched_meeting_minutes_to_text(batched_meeting_minutes: list[str]) -> str:
 def get_merged_meeting_minutes(
     batched_meeting_minutes: list[str], language: Language
 ) -> str:
-    if len(batched_meeting_minutes) == 1:
-        return batched_meeting_minutes[0]
-
     system_prompt = (
         CONTEXT
         + INSTRUCTIONS_MERGE_MEETING_MINUTES
@@ -117,20 +114,27 @@ def get_merged_meeting_minutes(
         + EXAMPLE_OUTPUT
     )
 
-    batched_meeting_minutes_as_text = batched_meeting_minutes_to_text(
-        batched_meeting_minutes
-    )
-
-    token_count_system_prompt = get_token_count(system_prompt, LLM_MODEL)
-    token_count_meeting_minutes = get_token_count(batched_meeting_minutes_as_text, LLM_MODEL)
-
-    print("Mergin Batches: ")
-    print(f"Token count of system prompt: {token_count_system_prompt}")
-    print(f"Token count of batched meeting minutes: {token_count_meeting_minutes}")
-    print(f"Total token count: {token_count_system_prompt + token_count_meeting_minutes}")
-
-    return infer_llm(system_prompt, batched_meeting_minutes_as_text)
-
+    while len(batched_meeting_minutes)>1:
+        merged_meeting_minutes = []
+        for i in range(0, len(batched_meeting_minutes), 2):
+            if i + 1 < len(batched_meeting_minutes):
+                batched_meeting_minutes_as_text = batched_meeting_minutes_to_text(
+                    batched_meeting_minutes[i:i+2]
+                )
+                token_count_system_prompt = get_token_count(system_prompt, LLM_MODEL)
+                token_count_meeting_minutes = get_token_count(batched_meeting_minutes_as_text, LLM_MODEL)
+                print("Mergin Batches: ")
+                print(f"Token count of system prompt: {token_count_system_prompt}")
+                print(f"Token count of batched meeting minutes: {token_count_meeting_minutes}")
+                print(f"Total token count: {token_count_system_prompt + token_count_meeting_minutes}")
+                merged_minutes = infer_llm(system_prompt, batched_meeting_minutes_as_text)
+                merged_meeting_minutes.append(
+                    merged_minutes
+                )
+            elif i < len(batched_meeting_minutes):
+                merged_meeting_minutes.append(batched_meeting_minutes[i])
+        batched_meeting_minutes = merged_meeting_minutes
+    return batched_meeting_minutes[0]
 
 @log_time
 def transcript_to_meeting_minutes(
