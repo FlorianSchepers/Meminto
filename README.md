@@ -23,25 +23,14 @@ pipenv shell
 pip install -r requirements.txt
 
 #3 Set environment variables
-
-#Option 1: In case you want to use an arbitrary LLM 
 export HUGGING_FACE_ACCESS_TOKEN=YOUR_ACCESS_TOKEN #see TL;DR of https://huggingface.co/pyannote/speaker-diarization
 export LLM_URL=YOUR_LLM_URL #e.g. "https://api.openai.com/v1/chat/completions" for openAI
 export LLM_MODEL=YOUR_LLM_MODEL #e.g. "gpt-3.5-turbo"
 export LLM_MAX_TOKENS=YOUR_LLM_MAX_TOKENS #e.g. "4000"
 export LLM_AUTHORIZATION=YOUR_LLM_AUTHORIZATION #e.g. "Bearer <Your OpenAI API key>"
 
-#Option 2: In case you want to use OpenAIs GPT-3.5-Turbo
-export HUGGING_FACE_ACCESS_TOKEN=YOUR_ACCESS_TOKEN #see TL;DR of https://huggingface.co/pyannote/speaker-diarization
-export OPENAI_API_KEY=YOUR_KEY #see https://platform.openai.com/account/api-keys
-
 #4 run Meminto 
-
-#For Option 1 (arbitraty LLM)
 python main.py -f <file-path> #replace '<file-path>' with path to audio file 
-
-#For Option 2 (GPT-3.5-Turbo)
-python main.py -f <file-path> --openai #replace '<file-path>' with path to audio file 
 ```
 
 ### Detailed description 
@@ -81,7 +70,7 @@ $Env:HUGGING_FACE_ACCESS_TOKEN = "YOUR_ACCESS_TOKEN" #Windows PowerShell
 ```
 **Note:** The Hugging face access token is required to be set for both of the options described below.
 
-##### Option 1: Required environment variables for an arbitrary LLM 
+##### Required environment variables for the LLM 
 In order to ensure privacy, you should choose an LLM instance you trust. This could be a local instance or an instance e.g. run by your company. In order for Meminto to communicate with the LLM of your choice, you will need set the following environment variables before running Meminto:<br>
 <br>
 On Linux/MacOS:
@@ -99,33 +88,14 @@ $Env:LLM_MAX_TOKENS = "YOUR_LLM_MAX_TOKENS" #e.g. "4000"
 $Env:LLM_AUTHORIZATION= "YOUR_LLM_AUTHORIZATION" #e.g. "Bearer <Your OpenAI API key>"
 ```
 
-##### Option 2: Required environment variables for using OpenAIs GPT-3.5-Turbo 
-As an alternative to Option 1 you can simply use Meminto's pre-configuration for the OpenAI API of GPT-3.5-Turbo. In this case, you only need to store your OpenAI API key in the environment variable `OPENAI_API_KEY`. If you do not have one, get it here: https://platform.openai.com/account/api-keys.<br>
-<br>
-Linux/MacOS:
-```Shell
-export OPENAI_API_KEY=YOUR_KEY
-```
-On Windows PowerShell:
-```Powershell
-$Env:OPENAI_API_KEY = "YOUR_KEY"
-```
-
 #### How to run Meminto
 
-##### Option 1 (arbitrary LLM)
 From the top level folder of Meminto run:
 ```shell
 python main.py -f <file-path>
 ```
 Where `<file-path>` corresponds to the path of the audio file for which you want to create the meeting minutes. There is an example file stored at `examples/Scoreboard.wav`.<br>
 
-##### Option 2 (GPT-3.5-Turbo)
-If you want to use GPT-3.5-Turbo via the OpenAI API, you can also use the `--openai` flag:
-```shell
-python main.py -f <file-path> --openai
-```
-However, keep in mind that for this option you still need to set the `OPENAI_API_KEY` and `HUGGING_FACE_ACCESS_TOKEN` environment variables as described above.
 ## Example: Scoreboard meeting
 
 Location: `examples/Scoreboard.wav`

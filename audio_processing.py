@@ -1,5 +1,6 @@
+from pathlib import Path
+from typing import Any
 import torchaudio
-
 from decorators import log_time
 
 
@@ -12,7 +13,7 @@ def batch(iterable, n=1):
         yield iterable[ndx : min(ndx + n, l)]
 
 
-def load_audio(audio_path):
+def load_audio(audio_path: Path) -> Any:
     audio, sr = torchaudio.load(audio_path)
     number_of_channels = audio.size()[0]
     if number_of_channels > 1:
@@ -23,8 +24,8 @@ def load_audio(audio_path):
 
 
 @log_time
-def split_audio(audio_source, diarization):
-    audio = load_audio(audio_source.resolve())
+def split_audio(audio_input_file_path: Path, diarization: Any) -> list[Any]:
+    audio = load_audio(audio_input_file_path)
 
     audio_sections = []
     for turn, _, speaker in diarization.itertracks(yield_label=True):

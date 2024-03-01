@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
+from typing import Any, Tuple
 import torch
-from transformers import *
+from transformers import WhisperProcessor, WhisperForConditionalGeneration
 from audio_processing import SAMPLING_RATE, batch
 from decorators import log_time
-from helpers import save_as_pkl
+from helpers import Language
 
 
 class WHISPER_MODEL_SIZE(Enum):
@@ -13,6 +15,7 @@ class WHISPER_MODEL_SIZE(Enum):
     SMALL = "small"
     MEDIUM = "medium"
     LARGE = "large"
+
 
 @dataclass
 class TranscriptSection:
@@ -28,7 +31,10 @@ class TranscriptSection:
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
 
-def setup_whisper(model_size=WHISPER_MODEL_SIZE.MEDIUM, english_only=False):
+def setup_whisper(
+    model_size: WHISPER_MODEL_SIZE = WHISPER_MODEL_SIZE.MEDIUM,
+    english_only: bool = False,
+)->Tuple[WhisperProcessor, Any | WhisperForConditionalGeneration]:
     match model_size:
         case WHISPER_MODEL_SIZE.TINY:
             if english_only:
@@ -75,7 +81,7 @@ def get_transcription_whisper(
     audio_batched = batch(audio, SAMPLING_RATE * 30)
     transcription = []
     forced_decoder_ids = whisper_processor.get_decoder_prompt_ids(
-        language=language, task="transcribe"
+        language=language.value, task="transcribe"
     )
     for section in audio_batched:
         input_features = whisper_processor(
@@ -93,7 +99,9 @@ def get_transcription_whisper(
     return "".join(transcription)
 
 
-def transcribe_audio_section(audio_sections, language):
+def transcribe_audio_sections(
+    audio_sections: list[Any], language: Language
+) -> list[str]:
     print("Creating transcript from diarized audio")
     section_transcripts = []
     (whisper_processor, whisper_model) = setup_whisper(
@@ -115,12 +123,13 @@ def transcribe_audio_section(audio_sections, language):
 
 
 @log_time
-def create_transcript(audio_sections, language) -> list[TranscriptSection]:
-    transcript_sections = transcribe_audio_section(audio_sections, language)
+def create_transcript(
+    audio_sections: list[Any], language: Language
+) -> list[TranscriptSection]:
+    transcript_sections = transcribe_audio_sections(audio_sections, language)
 
     transcript = []
     for idx, audio_section in enumerate(audio_sections):
-        print(f"type of start: {type(audio_section['turn'].start)}")
         transcript.append(
             TranscriptSection(
                 start=audio_section["turn"].start,
@@ -129,17 +138,17 @@ def create_transcript(audio_sections, language) -> list[TranscriptSection]:
                 text=transcript_sections[idx].strip(),
             )
         )
-             
+
     return transcript
 
 
-def save_transcript_as_txt(transcript: list[TranscriptSection], file_name):
+def save_transcript_as_txt(transcript: list[TranscriptSection], file_name: Path):
     with open(file_name, "w") as file:
         for transcript_section in transcript:
             file.write(
-                f"start={transcript_section.start:.1f}s \
-                    end={transcript_section.end:.1f}s \
-                    speaker={transcript_section.speaker}:\n"
+                f"start={transcript_section.start:.1f}s "
+                + f"end={transcript_section.end:.1f}s "
+                + f"speaker={transcript_section.speaker}:\n"
             )
             file.write(transcript_section.text)
             file.write("\n")
