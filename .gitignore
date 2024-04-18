@@ -1,4 +1,5 @@
 Pipfile
-__pycache__/
-.vscode
 Pipfile.lock
+.env
+.vscode
+__pycache__/
