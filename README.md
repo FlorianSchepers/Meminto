@@ -11,26 +11,30 @@ Therefore, the diarization and transcription are executed on your local device. 
 ## How to setup and run Meminto
 
 ### TL;DR
+Step 1. - Clone the Meminto repository
 ```shell
-#1 clone Meminto repository
 git clone https://github.com/FlorianSchepers/Meminto.git
 cd Meminto
-
-#2 Install requirements
-pip install --user pipenv #if not alread installed
-pipenv install
-pipenv shell
-pip install -r requirements.txt
-
-#3 Set environment variables
-export HUGGING_FACE_ACCESS_TOKEN=YOUR_ACCESS_TOKEN #see TL;DR of https://huggingface.co/pyannote/speaker-diarization
-export LLM_URL=YOUR_LLM_URL #e.g. "https://api.openai.com/v1/chat/completions" for openAI
-export LLM_MODEL=YOUR_LLM_MODEL #e.g. "gpt-3.5-turbo"
-export LLM_MAX_TOKENS=YOUR_LLM_MAX_TOKENS #e.g. "4000"
-export LLM_AUTHORIZATION=YOUR_LLM_AUTHORIZATION #e.g. "Bearer <Your OpenAI API key>"
-
-#4 run Meminto 
-python main.py -f <file-path> #replace '<file-path>' with path to audio file 
+```
+Step 2. - Setup virtual environment and install the dependencies
+```shell
+pipx install poetry
+poetry install
+poetry shell
+```
+Step 3. - Define environment variables
+   - create a file called `.env` in the top level folder of Meminto
+   - open the file and fill in the following information:
+```shell 
+HUGGING_FACE_ACCESS_TOKEN=<your_access_token> #see TL;DR of https://huggingface.co/pyannote/speaker-diarization
+LLM_URL=<your_llm_url> #e.g. "https://api.openai.com/v1/chat/completions" for openAI
+LLM_MODEL=<your_llm_model> #e.g. "gpt-3.5-turbo"
+LLM_MAX_TOKENS=<yor_llm_max_tokens> #e.g. "4000"
+LLM_AUTHORIZATION=<your_llm_authorization> #e.g. "Bearer <Your OpenAI API key>"
+```
+Step 4. - Run Meminto 
+```shell
+python meminto/main.py -f <file-path> #replace '<file-path>' with path to audio file 
 ```
 
 ### Detailed description 
@@ -45,54 +49,39 @@ and then move to its top level folder
 cd Meminto
 ```
 #### Install requirements
-I recommend to use a Python version >=3.10.<br>
-Next, install the requirements from `requirements.txt`. I recommend to use some kind of virtual environment. You could for example use `pipenv` (https://pypi.org/project/pipenv/):<br>
+As Python version Python >= 3.10 is recommended.<br>
+Meminto uses Poetry for the dependency management.<br>
+[Install Poetry](https://python-poetry.org/docs/) and run the following command in the root folder of the project in order to setup and activate the virtual environment
 ```shell
-pip install --user pipenv #Install pipenv
-pipenv install #Create an new environment
-pipenv shell #Activate the new environment
-pip install -r requirements.txt #Install the requirements
+poetry install
+poetry shell
 ```
+
 #### Setup environment variables
+All environment variables that will be used by Meminto can be pre-defined in a local `.env` file in the root level folder of Meminto. If it does not yet exist you will need to create it first.
 
 ##### Hugging Face Access Token
 
 In order to download a pretrained `pyannote.audio` model for speaker diarization from Hugging Face you will need to accept their terms and get a Hugging Face access token. To do so follow the first three steps of the `TL;DR` at https://huggingface.co/pyannote/speaker-diarization.<br>
-Before running Meminto, store your access token in an environment variable called `HUGGING_FACE_ACCESS_TOKEN`.<br>
-<br>
-On Linux/MacOS:
-```Shell
-export HUGGING_FACE_ACCESS_TOKEN=YOUR_ACCESS_TOKEN
-```
-On Windows Powershell:
-```Powershell
-$Env:HUGGING_FACE_ACCESS_TOKEN = "YOUR_ACCESS_TOKEN" #Windows PowerShell
-```
-**Note:** The Hugging face access token is required to be set for both of the options described below.
-
-##### Required environment variables for the LLM 
-In order to ensure privacy, you should choose an LLM instance you trust. This could be a local instance or an instance e.g. run by your company. In order for Meminto to communicate with the LLM of your choice, you will need set the following environment variables before running Meminto:<br>
-<br>
-On Linux/MacOS:
+Before running Meminto, write your access token to the `.env` file in the following format:
 ```shell
-export LLM_URL=YOUR_LLM_URL #e.g. "https://api.openai.com/v1/chat/completions" for openAI
-export LLM_MODEL=YOUR_LLM_MODEL #e.g. "gpt-3.5-turbo"
-export LLM_MAX_TOKENS=YOUR_LLM_MAX_TOKENS #e.g. "4000"
-export LLM_AUTHORIZATION=YOUR_LLM_AUTHORIZATION #e.g. "Bearer <Your OpenAI API key>"
+HUGGING_FACE_ACCESS_TOKEN=<your_access_token>
 ```
-On Windows PowerShell:
-```Powershell
-$Env:LLM_URL = "YOUR_LLM_URL" #e.g. "https://api.openai.com/v1/chat/completions" for openAI
-$Env:LLM_MODEL = "YOUR_LLM_MODEL" #e.g. "gpt-3.5-turbo"
-$Env:LLM_MAX_TOKENS = "YOUR_LLM_MAX_TOKENS" #e.g. "4000"
-$Env:LLM_AUTHORIZATION= "YOUR_LLM_AUTHORIZATION" #e.g. "Bearer <Your OpenAI API key>"
+
+##### LLM Environment variables 
+In order to ensure privacy, you should choose an LLM instance you trust. This could be a local instance or an instance e.g. run by your company. In order to communicate with the LLM of your choice Meminto will need the LLM URL, model, authorization key and max tokens. You can provide this information by adding it to the `.env` file in the following format:
+```shell
+LLM_URL=<your_llm_url> #e.g. "https://api.openai.com/v1/chat/completions" for openAI
+LLM_MODEL=<your_llm_model> #e.g. "gpt-3.5-turbo"
+LLM_MAX_TOKENS=<yor_llm_max_tokens> #e.g. "4000"
+LLM_AUTHORIZATION=<your_llm_authorization> #e.g. "Bearer <Your OpenAI API key>"
 ```
 
 #### How to run Meminto
 
 From the top level folder of Meminto run:
 ```shell
-python main.py -f <file-path>
+python meminto/main.py -f <file-path>
 ```
 Where `<file-path>` corresponds to the path of the audio file for which you want to create the meeting minutes. There is an example file stored at `examples/Scoreboard.wav`.<br>
 
