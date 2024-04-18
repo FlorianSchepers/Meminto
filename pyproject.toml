@@ -1,0 +1,26 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "meminto"
+version = "0.1.0"
+description = ""
+authors = ["Florian Schepers <florian.schepers@ext.aleph-alpha.com>"]
+readme = "README.md"
+license = "MIT"
+packages = [{include = "meminto", from = "."}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+torchaudio = "^2.2.2"
+click = "^8.1.7"
+pyannote-audio = "^3.1.1"
+tiktoken = "^0.6.0"
+transformers = "^4.39.3"
+pyannote-pipeline = "^3.0.1"
+speechbrain = "0.5.15"
+python-dotenv = "^1.0.1"
+
+
+
