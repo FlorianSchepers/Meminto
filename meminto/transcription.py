@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Tuple
 import torch
 from transformers import (
     WhisperProcessor,
@@ -9,9 +8,9 @@ from transformers import (
     pipeline,
     Pipeline,
 )
-from audio_processing import SAMPLING_RATE, batch
 from decorators import log_time
 from helpers import Language
+from meminto.audio_processing import AudioSection
 
 
 class WHISPER_MODEL_SIZE(Enum):
@@ -36,7 +35,7 @@ class TranscriptSection:
 
 @log_time
 def create_transcript(
-    audio_sections: list[Any], language: Language
+    audio_sections: list[AudioSection], language: Language
 ) -> list[TranscriptSection]:
 
     print("Creating transcript from diarized audio")
@@ -103,23 +102,23 @@ def get_model_name(model_size: WHISPER_MODEL_SIZE, english_only: bool)->str:
             whisper_model_name = "openai/whisper-medium"  # multilingual, ~ 3.06 GB
     return whisper_model_name
 
-def transcribe_sections(audio_sections: list[Any], whisper: Pipeline) -> list[TranscriptSection]:
+def transcribe_sections(audio_sections: list[AudioSection], whisper: Pipeline) -> list[TranscriptSection]:
         # transcribe sections
     transcript_sections = []
     total_number_of_sections = len(audio_sections)
     for section_number, section in enumerate(audio_sections):
         print(f"Transscribing section {section_number} of {total_number_of_sections}.")
         transcription = whisper(
-            section["audio"].numpy(),
+            section.audio.numpy(),
             chunk_length_s=30,
             stride_length_s=5,
             batch_size=8,
         )
         print(transcription["text"])
         transcript_section = TranscriptSection(
-                start=section["turn"].start,
-                end=section["turn"].end,
-                speaker=section["speaker"],
+                start=section.turn.start,
+                end=section.turn.end,
+                speaker=section.speaker,
                 text=transcription["text"].strip(),
             )
         transcript_sections.append(transcript_section)
