@@ -1,8 +1,9 @@
+import os
 from pathlib import Path
 import click
 from audio_processing import split_audio
 from decorators import log_time
-from diarization import diarize_audio
+from diarizor import Diarizor
 from helpers import (
     Language,
     load_pkl,
@@ -22,6 +23,7 @@ from transcription import (
     save_transcript_as_txt,
 )
 from dotenv import load_dotenv
+from pyannote.core import Annotation
 
 EXAMPLE_INPUT_FILE = Path(__file__).parent.resolve() / "../examples/Scoreboard.wav"
 DEFAULT_OUTPUT_FOLDER = Path(__file__).parent.resolve() / "../output"
@@ -29,10 +31,11 @@ DEFAULT_OUTPUT_FOLDER = Path(__file__).parent.resolve() / "../output"
 
 @log_time
 def create_meeting_minutes(audio_input_file_path: Path, output_folder_path: Path, language :Language):
-    diarization = diarize_audio(audio_input_file_path)
+    diarizor = Diarizor(model="pyannote/speaker-diarization@2.1", hugging_face_token=os.environ["HUGGING_FACE_ACCESS_TOKEN"])
+    diarization = diarizor.diarize_audio(audio_input_file_path)
     save_as_pkl(diarization, output_folder_path / "diarization.pkl")
-
-    diarization = load_pkl(output_folder_path / "diarization.pkl")
+    
+    diarization: Annotation = load_pkl(output_folder_path / "diarization.pkl")
     audio_sections = split_audio(audio_input_file_path, diarization)
     transcript = create_transcript(audio_sections, language)
     save_as_pkl(transcript, output_folder_path / "transcript.pkl")
