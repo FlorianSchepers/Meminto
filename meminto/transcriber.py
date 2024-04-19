@@ -6,10 +6,8 @@ from transformers import (
     WhisperProcessor,
     WhisperForConditionalGeneration,
     pipeline,
-    Pipeline,
 )
 from decorators import log_time
-from helpers import Language
 from meminto.audio_processing import AudioSection
 
 
@@ -32,45 +30,51 @@ class TranscriptSection:
     def __str__(self):
         return f'{self.speaker}: "{self.text}"\n'
 
+class Transcriber():
+    def __init__(self, model_size: WHISPER_MODEL_SIZE = WHISPER_MODEL_SIZE.MEDIUM, english_only: bool = False):
+        model_name = _model_name(model_size, english_only)
+        device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        print(f"Running on {device}")
+        whisper_processor = WhisperProcessor.from_pretrained(model_name)
+        whisper_model = WhisperForConditionalGeneration.from_pretrained(
+            model_name
+        ).to(device)
+        torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+        
+        self.pipeline = pipeline(
+            "automatic-speech-recognition",
+            model=whisper_model,
+            tokenizer=whisper_processor.tokenizer,
+            feature_extractor=whisper_processor.feature_extractor,
+            max_new_tokens=128,
+            chunk_length_s=30,
+            batch_size=16,
+            torch_dtype=torch_dtype,
+            device=device,
+        )
+    
+    @log_time
+    def transcribe(self, audio_sections: list[AudioSection]) -> list[TranscriptSection]:
+        transcript_sections = []
+        total_number_of_sections = len(audio_sections)
+        for section_number, section in enumerate(audio_sections):
+            print(f"Transscribing section {section_number} of {total_number_of_sections}.")
+            transcription = self.pipeline(
+                section.audio.numpy(),
+                chunk_length_s=30,
+                stride_length_s=5,
+                batch_size=8,
+            )
+            transcript_section = TranscriptSection(
+                    start=section.turn.start,
+                    end=section.turn.end,
+                    speaker=section.speaker,
+                    text=transcription["text"].strip(),
+                )
+            transcript_sections.append(transcript_section)
+        return transcript_sections
 
-@log_time
-def create_transcript(
-    audio_sections: list[AudioSection], language: Language
-) -> list[TranscriptSection]:
-
-    print("Creating transcript from diarized audio")
-    whisper = setup_whisper()
-    transcript_sections = transcribe_sections(audio_sections, whisper)
-
-    return transcript_sections
-
-
-def setup_whisper(
-    model_size: WHISPER_MODEL_SIZE = WHISPER_MODEL_SIZE.MEDIUM,
-    english_only: bool = False,
-) -> Pipeline:
-    model_name = get_model_name(model_size, english_only)
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    print(f"Running on {device}")
-    whisper_processor = WhisperProcessor.from_pretrained(model_name)
-    whisper_model = WhisperForConditionalGeneration.from_pretrained(
-        model_name
-    ).to(device)
-    torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
-    whisper = pipeline(
-        "automatic-speech-recognition",
-        model=whisper_model,
-        tokenizer=whisper_processor.tokenizer,
-        feature_extractor=whisper_processor.feature_extractor,
-        max_new_tokens=128,
-        chunk_length_s=30,
-        batch_size=16,
-        torch_dtype=torch_dtype,
-        device=device,
-    )
-    return whisper
-
-def get_model_name(model_size: WHISPER_MODEL_SIZE, english_only: bool)->str:
+def _model_name(model_size: WHISPER_MODEL_SIZE, english_only: bool)->str:
     match model_size:
         case WHISPER_MODEL_SIZE.TINY:
             if english_only:
@@ -101,29 +105,6 @@ def get_model_name(model_size: WHISPER_MODEL_SIZE, english_only: bool)->str:
         case _:
             whisper_model_name = "openai/whisper-medium"  # multilingual, ~ 3.06 GB
     return whisper_model_name
-
-def transcribe_sections(audio_sections: list[AudioSection], whisper: Pipeline) -> list[TranscriptSection]:
-        # transcribe sections
-    transcript_sections = []
-    total_number_of_sections = len(audio_sections)
-    for section_number, section in enumerate(audio_sections):
-        print(f"Transscribing section {section_number} of {total_number_of_sections}.")
-        transcription = whisper(
-            section.audio.numpy(),
-            chunk_length_s=30,
-            stride_length_s=5,
-            batch_size=8,
-        )
-        print(transcription["text"])
-        transcript_section = TranscriptSection(
-                start=section.turn.start,
-                end=section.turn.end,
-                speaker=section.speaker,
-                text=transcription["text"].strip(),
-            )
-        transcript_sections.append(transcript_section)
-    return transcript_sections
-
 
 def save_transcript_as_txt(transcript: list[TranscriptSection], file_name: Path):
     with open(file_name, "w") as file:
