@@ -14,7 +14,7 @@ from prompts import (
     SELECT_LANGUAGE,
 )
 from llm.tokenizers import get_token_count
-from transcription import TranscriptSection
+from meminto.transcriber import TranscriptSection
 
 RATIO_OF_TOKENS_RESERVED_FOR_RESPONSE = 0.3
 
