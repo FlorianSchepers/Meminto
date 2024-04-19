@@ -18,5 +18,4 @@ class Diarizer():
             self.model, use_auth_token=self.hugging_face_token
         )
         diarization: Annotation = pipeline(audio_source)
-        print(diarization)
         return diarization
