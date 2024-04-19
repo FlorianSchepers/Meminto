@@ -7,7 +7,7 @@ from pyannote.core import Annotation
 from decorators import log_time
 
 
-class Diarizor():
+class Diarizer():
     def __init__(self, model: str, hugging_face_token: str):
         self.model = model
         self.hugging_face_token = hugging_face_token

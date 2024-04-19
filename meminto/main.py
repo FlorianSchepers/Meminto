@@ -3,7 +3,7 @@ from pathlib import Path
 import click
 from audio_processing import split_audio
 from decorators import log_time
-from diarizor import Diarizor
+from meminto.diarizer import Diarizer
 from helpers import (
     Language,
     load_pkl,
@@ -17,9 +17,8 @@ from transcript_to_meeting_minutes import (
     batched_meeting_minutes_to_text,
     transcript_to_meeting_minutes,
 )
-from transcription import (
-    TranscriptSection,
-    create_transcript,
+from meminto.transcriber import (
+    Transcriber,
     save_transcript_as_txt,
 )
 from dotenv import load_dotenv
@@ -31,13 +30,14 @@ DEFAULT_OUTPUT_FOLDER = Path(__file__).parent.resolve() / "../output"
 
 @log_time
 def create_meeting_minutes(audio_input_file_path: Path, output_folder_path: Path, language :Language):
-    diarizor = Diarizor(model="pyannote/speaker-diarization@2.1", hugging_face_token=os.environ["HUGGING_FACE_ACCESS_TOKEN"])
-    diarization = diarizor.diarize_audio(audio_input_file_path)
+    diarizer = Diarizer(model="pyannote/speaker-diarization@2.1", hugging_face_token=os.environ["HUGGING_FACE_ACCESS_TOKEN"])
+    diarization = diarizer.diarize_audio(audio_input_file_path)
     save_as_pkl(diarization, output_folder_path / "diarization.pkl")
     
     diarization: Annotation = load_pkl(output_folder_path / "diarization.pkl")
     audio_sections = split_audio(audio_input_file_path, diarization)
-    transcript = create_transcript(audio_sections, language)
+    transcriber = Transcriber()
+    transcript = transcriber.transcribe(audio_sections)
     save_as_pkl(transcript, output_folder_path / "transcript.pkl")
     save_transcript_as_txt(transcript, output_folder_path / "transcript.txt")
      
