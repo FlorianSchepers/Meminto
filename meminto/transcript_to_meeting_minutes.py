@@ -19,7 +19,7 @@ from meminto.transcriber import TranscriptSection
 RATIO_OF_TOKENS_RESERVED_FOR_RESPONSE = 0.3
 
 
-def get_number_of_tokens_per_batch(
+def get_number_of_tokens_per_chunk(
     system_prompt: str, transcript: list[TranscriptSection], model: str
 ) -> int:
     max_tokens = (
@@ -32,46 +32,46 @@ def get_number_of_tokens_per_batch(
         - token_count_system_prompt
     )
     token_count_reserved_for_response = int(token_count_available*RATIO_OF_TOKENS_RESERVED_FOR_RESPONSE)
-    token_count_per_batch = token_count_available - token_count_reserved_for_response
+    token_count_per_chunk = token_count_available - token_count_reserved_for_response
     
-    number_of_batches = token_count_transcript // token_count_per_batch + 1
-    number_of_tokens_per_batch = token_count_transcript // number_of_batches + 1
+    number_of_chunks = token_count_transcript // token_count_per_chunk + 1
+    number_of_tokens_per_chunk = token_count_transcript // number_of_chunks + 1
 
     print(f"Batching transcript:")
     print(f"LLM max. token count: {max_tokens}")
     print(f"Token count of system prompt: {token_count_system_prompt}")
     print(f"Token count reserved for response: {token_count_reserved_for_response}")
-    print(f"Token count per transcript batch: {token_count_per_batch}")
+    print(f"Token count per transcript chunk: {token_count_per_chunk}")
     print(f"Token count of transcript: {token_count_transcript}")
-    print(f"Number of batches: {number_of_batches}")
-    print(f"Number of tokens per batch: {number_of_tokens_per_batch}")
+    print(f"Number of chunks: {number_of_chunks}")
+    print(f"Number of tokens per chunk: {number_of_tokens_per_chunk}")
 
-    return number_of_tokens_per_batch
+    return number_of_tokens_per_chunk
 
 
-def get_batched_transcript(
+def split_transcript_in_chunks(
     system_prompt: str, transcript: list[TranscriptSection], model: str
 ) -> list[list[TranscriptSection]]:
-    number_of_tokens_per_batch = get_number_of_tokens_per_batch(
+    number_of_tokens_per_chunk = get_number_of_tokens_per_chunk(
         system_prompt, transcript, model
     )
 
-    batched_transcript = []
-    batch = []
+    transcript_chunks = []
+    chunks = []
     for transcript_section in transcript:
-        batch.append(transcript_section)
+        chunks.append(transcript_section)
         if (
-            get_token_count("".join(map(str, batch)), model)
-            >= number_of_tokens_per_batch
+            get_token_count("".join(map(str, chunks)), model)
+            >= number_of_tokens_per_chunk
         ):
-            batched_transcript.append(batch)
-            batch = []
-    batched_transcript.append(batch)
+            transcript_chunks.append(chunks)
+            chunks = []
+    transcript_chunks.append(chunks)
 
-    return batched_transcript
+    return transcript_chunks
 
 
-def get_batched_meeting_minutes(
+def generate_meeting_minutes_chunks(
     transcript: list[TranscriptSection], language: Language, model: str
 ) -> list[str]:
     system_prompt = (
@@ -84,27 +84,27 @@ def get_batched_meeting_minutes(
         + EXAMPLE_OUTPUT
     )
 
-    batched_transcript = get_batched_transcript(system_prompt, transcript, model)
+    transcript_chunks = split_transcript_in_chunks(system_prompt, transcript, model)
 
-    batched_meeting_minutes = []
-    for batch in batched_transcript:
-        batch_txt = "".join(map(str, batch))
-        batched_meeting_minutes.append(infer_llm(system_prompt, batch_txt))
+    meeting_minutes_chunks = []
+    for chunk in transcript_chunks:
+        text_chunks = "".join(map(str, chunk))
+        meeting_minutes_chunks.append(infer_llm(system_prompt, text_chunks))
 
-    return batched_meeting_minutes
+    return meeting_minutes_chunks
 
 
-def batched_meeting_minutes_to_text(batched_meeting_minutes: list[str]) -> str:
-    batched_meeting_minutes_txt = ""
-    for idx, batch in enumerate(batched_meeting_minutes):
-        batched_meeting_minutes_txt = (
-            batched_meeting_minutes_txt + f"Section {idx+1}\n" + batch + "\n\n"
+def meeting_minutes_chunks_to_text(meeting_minutes_chunks: list[str]) -> str:
+    meeting_minutes_chunks_as_text = ""
+    for idx, chunks in enumerate(meeting_minutes_chunks):
+        meeting_minutes_chunks_as_text = (
+            meeting_minutes_chunks_as_text + f"Section {idx+1}\n" + chunks + "\n\n"
         )
-    return batched_meeting_minutes_txt
+    return meeting_minutes_chunks_as_text
 
 
 def get_merged_meeting_minutes(
-    batched_meeting_minutes: list[str], language: Language, model: str
+    meeting_minutes_chunks: list[str], language: Language, model: str
 ) -> str:
     system_prompt = (
         CONTEXT
@@ -118,48 +118,48 @@ def get_merged_meeting_minutes(
         + EXAMPLE_OUTPUT
     )
 
-    while len(batched_meeting_minutes)>1:
+    while len(meeting_minutes_chunks)>1:
         merged_meeting_minutes = []
-        for i in range(0, len(batched_meeting_minutes), 2):
-            if i + 1 < len(batched_meeting_minutes):
-                batched_meeting_minutes_as_text = batched_meeting_minutes_to_text(
-                    batched_meeting_minutes[i:i+2]
+        for i in range(0, len(meeting_minutes_chunks), 2):
+            if i + 1 < len(meeting_minutes_chunks):
+                meeting_minutes_chunks_as_text = meeting_minutes_chunks_to_text(
+                    meeting_minutes_chunks[i:i+2]
                 )
                 token_count_system_prompt = get_token_count(system_prompt, model)
-                token_count_meeting_minutes = get_token_count(batched_meeting_minutes_as_text, model)
+                token_count_meeting_minutes = get_token_count(meeting_minutes_chunks_as_text, model)
                 print("Mergin Batches: ")
                 print(f"Token count of system prompt: {token_count_system_prompt}")
-                print(f"Token count of batched meeting minutes: {token_count_meeting_minutes}")
+                print(f"Token count of meeting minutes chunks: {token_count_meeting_minutes}")
                 print(f"Total token count: {token_count_system_prompt + token_count_meeting_minutes}")
-                merged_minutes = infer_llm(system_prompt, batched_meeting_minutes_as_text)
+                merged_minutes = infer_llm(system_prompt, meeting_minutes_chunks_as_text)
                 merged_meeting_minutes.append(
                     merged_minutes
                 )
-            elif i < len(batched_meeting_minutes):
-                merged_meeting_minutes.append(batched_meeting_minutes[i])
-        batched_meeting_minutes = merged_meeting_minutes
-    return batched_meeting_minutes[0]
+            elif i < len(meeting_minutes_chunks):
+                merged_meeting_minutes.append(meeting_minutes_chunks[i])
+        meeting_minutes_chunks = merged_meeting_minutes
+    return meeting_minutes_chunks[0]
 
 @log_time
 def transcript_to_meeting_minutes(
     transcript: list[TranscriptSection], language: Language
 ) -> Tuple[str, list[str]]:
     model = str(os.environ["LLM_MODEL"])
-    batched_meeting_minutes = get_batched_meeting_minutes(transcript, language, model)
-    batched_meeting_minutes_as_text = batched_meeting_minutes_to_text(
-        batched_meeting_minutes
+    meeting_minutes_chunks = generate_meeting_minutes_chunks(transcript, language, model)
+    meeting_minutes_chunks_as_text = meeting_minutes_chunks_to_text(
+        meeting_minutes_chunks
     )
     print(
-        "----------------------------- batched_meeting_minutes_as_text ------------------------------------"
+        "----------------------------- meeting_minutes_chunks_as_text ------------------------------------"
     )
-    print(batched_meeting_minutes_as_text)
+    print(meeting_minutes_chunks_as_text)
     merged_meeting_minutes = ""
     merged_meeting_minutes = get_merged_meeting_minutes(
-        batched_meeting_minutes, language, model
+        meeting_minutes_chunks, language, model
     )
     print(
         "----------------------------- merged_meeting_minutes ------------------------------------"
     )
     print(merged_meeting_minutes)
 
-    return (merged_meeting_minutes, batched_meeting_minutes)
+    return (merged_meeting_minutes, meeting_minutes_chunks)
