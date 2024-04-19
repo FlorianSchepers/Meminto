@@ -14,7 +14,7 @@ from helpers import (
     write_text_to_file,
 )
 from transcript_to_meeting_minutes import (
-    batched_meeting_minutes_to_text,
+    meeting_minutes_chunks_to_text,
     transcript_to_meeting_minutes,
 )
 from meminto.transcriber import (
@@ -36,6 +36,7 @@ def create_meeting_minutes(audio_input_file_path: Path, output_folder_path: Path
     
     diarization: Annotation = load_pkl(output_folder_path / "diarization.pkl")
     audio_sections = split_audio(audio_input_file_path, diarization)
+
     transcriber = Transcriber()
     transcript = transcriber.transcribe(audio_sections)
     save_as_pkl(transcript, output_folder_path / "transcript.pkl")
@@ -44,12 +45,12 @@ def create_meeting_minutes(audio_input_file_path: Path, output_folder_path: Path
     transcript = load_pkl(
         output_folder_path / "transcript.pkl"
     )
-    merged_meeting_minutes, batched_meeting_minutes = transcript_to_meeting_minutes(
+    merged_meeting_minutes, meeting_minutes_chunks = transcript_to_meeting_minutes(
         transcript, language
     )
     write_text_to_file(
-        batched_meeting_minutes_to_text(batched_meeting_minutes),
-        output_folder_path / "batched_meeting_minutes.txt",
+        meeting_minutes_chunks_to_text(meeting_minutes_chunks),
+        output_folder_path / "meeting_minutes_chunks.txt",
     )
     write_text_to_file(
         merged_meeting_minutes, output_folder_path / "meeting_minutes.txt"
