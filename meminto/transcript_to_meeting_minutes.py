@@ -2,7 +2,7 @@ import os
 from typing import Tuple
 from decorators import log_time
 from helpers import Language
-from llm.llm_inference import infer_llm
+from meminto.llm.llm import LLM
 from prompts import (
     CONTEXT,
     EXAMPLE_INPUT,
@@ -22,18 +22,18 @@ RATIO_OF_TOKENS_RESERVED_FOR_RESPONSE = 0.3
 def get_number_of_tokens_per_chunk(
     system_prompt: str, transcript: list[TranscriptSection], model: str
 ) -> int:
-    max_tokens = (
-        os.environ["LLM_MAX_TOKENS"] if "LLM_MAX_TOKENS" in os.environ else "4000"
-    )  
+    max_tokens = os.environ["LLM_MAX_TOKENS"]
     token_count_system_prompt = get_token_count(system_prompt, model)
     token_count_transcript = get_token_count("".join(map(str, transcript)), model)
-    token_count_available = (
-        int(max_tokens)
-        - token_count_system_prompt
+    token_count_available = int(max_tokens) - token_count_system_prompt
+    token_count_reserved_for_response = int(
+        token_count_available * RATIO_OF_TOKENS_RESERVED_FOR_RESPONSE
     )
-    token_count_reserved_for_response = int(token_count_available*RATIO_OF_TOKENS_RESERVED_FOR_RESPONSE)
+    token_count_reserved_for_response = int(
+        token_count_available * RATIO_OF_TOKENS_RESERVED_FOR_RESPONSE
+    )
     token_count_per_chunk = token_count_available - token_count_reserved_for_response
-    
+
     number_of_chunks = token_count_transcript // token_count_per_chunk + 1
     number_of_tokens_per_chunk = token_count_transcript // number_of_chunks + 1
 
@@ -72,8 +72,9 @@ def split_transcript_in_chunks(
 
 
 def generate_meeting_minutes_chunks(
-    transcript: list[TranscriptSection], language: Language, model: str
+    transcript: list[TranscriptSection], language: Language, llm: LLM
 ) -> list[str]:
+
     system_prompt = (
         CONTEXT
         + INSTRUCTIONS_CREATE_MEETING_MINUTES
@@ -84,12 +85,13 @@ def generate_meeting_minutes_chunks(
         + EXAMPLE_OUTPUT
     )
 
-    transcript_chunks = split_transcript_in_chunks(system_prompt, transcript, model)
+    transcript_chunks = split_transcript_in_chunks(system_prompt, transcript, llm.model)
 
     meeting_minutes_chunks = []
     for chunk in transcript_chunks:
-        text_chunks = "".join(map(str, chunk))
-        meeting_minutes_chunks.append(infer_llm(system_prompt, text_chunks))
+        text_chunk = "".join(map(str, chunk))
+        meeting_minutes_chunk = llm.infer(system_prompt, text_chunk)
+        meeting_minutes_chunks.append(meeting_minutes_chunk)
 
     return meeting_minutes_chunks
 
@@ -104,7 +106,7 @@ def meeting_minutes_chunks_to_text(meeting_minutes_chunks: list[str]) -> str:
 
 
 def get_merged_meeting_minutes(
-    meeting_minutes_chunks: list[str], language: Language, model: str
+    meeting_minutes_chunks: list[str], language: Language, llm: LLM
 ) -> str:
     system_prompt = (
         CONTEXT
@@ -118,34 +120,48 @@ def get_merged_meeting_minutes(
         + EXAMPLE_OUTPUT
     )
 
-    while len(meeting_minutes_chunks)>1:
+    while len(meeting_minutes_chunks) > 1:
         merged_meeting_minutes = []
         for i in range(0, len(meeting_minutes_chunks), 2):
             if i + 1 < len(meeting_minutes_chunks):
                 meeting_minutes_chunks_as_text = meeting_minutes_chunks_to_text(
-                    meeting_minutes_chunks[i:i+2]
+                    meeting_minutes_chunks[i : i + 2]
                 )
-                token_count_system_prompt = get_token_count(system_prompt, model)
-                token_count_meeting_minutes = get_token_count(meeting_minutes_chunks_as_text, model)
+                token_count_system_prompt = get_token_count(system_prompt, llm.model)
+                token_count_meeting_minutes = get_token_count(
+                    meeting_minutes_chunks_as_text, llm.model
+                )
                 print("Mergin Batches: ")
                 print(f"Token count of system prompt: {token_count_system_prompt}")
-                print(f"Token count of meeting minutes chunks: {token_count_meeting_minutes}")
-                print(f"Total token count: {token_count_system_prompt + token_count_meeting_minutes}")
-                merged_minutes = infer_llm(system_prompt, meeting_minutes_chunks_as_text)
-                merged_meeting_minutes.append(
-                    merged_minutes
+                print(
+                    f"Token count of meeting minutes chunks: {token_count_meeting_minutes}"
                 )
+                print(
+                    f"Total token count: {token_count_system_prompt + token_count_meeting_minutes}"
+                )
+                merged_minutes = llm.infer(
+                    system_prompt, meeting_minutes_chunks_as_text
+                )
+                merged_meeting_minutes.append(merged_minutes)
             elif i < len(meeting_minutes_chunks):
                 merged_meeting_minutes.append(meeting_minutes_chunks[i])
         meeting_minutes_chunks = merged_meeting_minutes
     return meeting_minutes_chunks[0]
 
+
 @log_time
 def transcript_to_meeting_minutes(
     transcript: list[TranscriptSection], language: Language
 ) -> Tuple[str, list[str]]:
-    model = str(os.environ["LLM_MODEL"])
-    meeting_minutes_chunks = generate_meeting_minutes_chunks(transcript, language, model)
+    llm = LLM(
+        model=str(os.environ["LLM_MODEL"]),
+        url=os.environ["LLM_URL"],
+        authorization=os.environ["LLM_AUTHORIZATION"],
+        temperature=0.5,
+        max_tokens=os.environ["LLM_MAX_TOKENS"],
+    )
+
+    meeting_minutes_chunks = generate_meeting_minutes_chunks(transcript, language, llm)
     meeting_minutes_chunks_as_text = meeting_minutes_chunks_to_text(
         meeting_minutes_chunks
     )
@@ -155,7 +171,7 @@ def transcript_to_meeting_minutes(
     print(meeting_minutes_chunks_as_text)
     merged_meeting_minutes = ""
     merged_meeting_minutes = get_merged_meeting_minutes(
-        meeting_minutes_chunks, language, model
+        meeting_minutes_chunks, language, llm
     )
     print(
         "----------------------------- merged_meeting_minutes ------------------------------------"
