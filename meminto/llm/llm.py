@@ -1,4 +1,4 @@
-import requests
+import requests  # type: ignore
 
 
 class LLM:
@@ -31,13 +31,15 @@ class LLM:
         headers["Authorization"] = self.authorization
         return headers
 
-    def _create_parameters(self, system_prompt: str, user_prompt: str) -> dict:
+    def _create_parameters(
+        self, system_prompt: str, user_prompt: str
+    ) -> dict[str, str | float | int | list[dict[str, str]]]:
         messages = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ]
 
-        parameters = {}
+        parameters: dict[str, str | float | int | list[dict[str, str]]] = {}
         parameters["model"] = self.model
         parameters["temperature"] = self.temperature
         parameters["max_tokens"] = self.max_tokens

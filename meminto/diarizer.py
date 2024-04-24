@@ -1,9 +1,6 @@
-import os
 from pathlib import Path
-from typing import Any
-from dotenv import load_dotenv
-from pyannote.audio import Pipeline
-from pyannote.core import Annotation
+from pyannote.audio import Pipeline # type: ignore
+from pyannote.core import Annotation # type: ignore
 from decorators import log_time
 
 
