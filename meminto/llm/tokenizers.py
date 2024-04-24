@@ -1,23 +1,31 @@
+import os
 import tiktoken
 from sentencepiece import SentencePieceProcessor
-
-LLAMA_MODELS = {"llama", "llama2", "Llama-2-70b-chat-hf", "Mixtral-8x7B-Instruct-v0.1"}
-
-def get_tiktoken_count(content: str, model: str) -> int:
-    enc = tiktoken.encoding_for_model(model)
-    return len(enc.encode(content))
+from transformers import AutoTokenizer, OpenAIGPTTokenizer
 
 
-def get_sentencepiece_count(content: str) -> int:
-    sp_model = SentencePieceProcessor("meminto/llm/tokenizer.model")
-    return len(sp_model.encode(content))
+class Tokenizer:
+    def __init__(self, model: str):
+        self.model = model
+        self.tokenizer = self._select_tokenizer()
 
+    def _select_tokenizer(self):
+        try:
+            tokenizer = AutoTokenizer.from_pretrained(self.model)
+        except:
+            if self.model in tiktoken.model.MODEL_TO_ENCODING.keys():
+                tokenizer = OpenAIGPTTokenizer.from_pretrained("openai-gpt")
+            else:
+                tokenizer = AutoTokenizer.from_pretrained(
+                    "meta-llama/Llama-2-70b-chat-hf"
+                )  # Use Llama tokenizer as conservative fallback
 
-def get_token_count(content: str, model: str) -> int:
-    if model in tiktoken.model.MODEL_TO_ENCODING.keys():
-        return get_tiktoken_count(content, model)
-    elif model in LLAMA_MODELS:
-        return get_sentencepiece_count(content)
-    else:
-        # If model is unknown use sentencepiece as it is the more conservative estimate 
-        return get_sentencepiece_count(content) 
+        print(f'Using tokenizer for model: {tokenizer.name_or_path}')
+        return tokenizer
+    
+    def tokenize(self, content: str)->list[str]:
+        return self.tokenizer.tokenize(content)
+    
+    def number_of_tokens(self, content:str)->int:
+        tokens = self.tokenize(content)
+        return len(tokens)

@@ -2,7 +2,7 @@ import os
 from typing import Tuple
 from decorators import log_time
 from helpers import Language
-from meminto.llm.llm import LLM
+from llm.llm import LLM
 from prompts import (
     CONTEXT,
     EXAMPLE_INPUT,
@@ -13,18 +13,19 @@ from prompts import (
     INSTRUCTIONS_MERGE_MEETING_MINUTES,
     SELECT_LANGUAGE,
 )
-from llm.tokenizers import get_token_count
+from llm.tokenizers import Tokenizer
 from meminto.transcriber import TranscriptSection
+from huggingface_hub import login
 
 RATIO_OF_TOKENS_RESERVED_FOR_RESPONSE = 0.3
 
 
 def get_number_of_tokens_per_chunk(
-    system_prompt: str, transcript: list[TranscriptSection], model: str
+    system_prompt: str, transcript: list[TranscriptSection], tokenizer: Tokenizer
 ) -> int:
     max_tokens = os.environ["LLM_MAX_TOKENS"]
-    token_count_system_prompt = get_token_count(system_prompt, model)
-    token_count_transcript = get_token_count("".join(map(str, transcript)), model)
+    token_count_system_prompt = tokenizer.number_of_tokens(system_prompt)
+    token_count_transcript = tokenizer.number_of_tokens("".join(map(str, transcript)))
     token_count_available = int(max_tokens) - token_count_system_prompt
     token_count_reserved_for_response = int(
         token_count_available * RATIO_OF_TOKENS_RESERVED_FOR_RESPONSE
@@ -50,10 +51,10 @@ def get_number_of_tokens_per_chunk(
 
 
 def split_transcript_in_chunks(
-    system_prompt: str, transcript: list[TranscriptSection], model: str
+    system_prompt: str, transcript: list[TranscriptSection], tokenizer: Tokenizer
 ) -> list[list[TranscriptSection]]:
     number_of_tokens_per_chunk = get_number_of_tokens_per_chunk(
-        system_prompt, transcript, model
+        system_prompt, transcript, tokenizer
     )
 
     transcript_chunks = []
@@ -61,7 +62,7 @@ def split_transcript_in_chunks(
     for transcript_section in transcript:
         chunks.append(transcript_section)
         if (
-            get_token_count("".join(map(str, chunks)), model)
+            tokenizer.number_of_tokens("".join(map(str, chunks)))
             >= number_of_tokens_per_chunk
         ):
             transcript_chunks.append(chunks)
@@ -72,7 +73,10 @@ def split_transcript_in_chunks(
 
 
 def generate_meeting_minutes_chunks(
-    transcript: list[TranscriptSection], language: Language, llm: LLM
+    transcript: list[TranscriptSection],
+    language: Language,
+    llm: LLM,
+    tokenizer: Tokenizer,
 ) -> list[str]:
 
     system_prompt = (
@@ -85,7 +89,7 @@ def generate_meeting_minutes_chunks(
         + EXAMPLE_OUTPUT
     )
 
-    transcript_chunks = split_transcript_in_chunks(system_prompt, transcript, llm.model)
+    transcript_chunks = split_transcript_in_chunks(system_prompt, transcript, tokenizer)
 
     meeting_minutes_chunks = []
     for chunk in transcript_chunks:
@@ -106,7 +110,10 @@ def meeting_minutes_chunks_to_text(meeting_minutes_chunks: list[str]) -> str:
 
 
 def get_merged_meeting_minutes(
-    meeting_minutes_chunks: list[str], language: Language, llm: LLM
+    meeting_minutes_chunks: list[str],
+    language: Language,
+    llm: LLM,
+    tokenizer: Tokenizer,
 ) -> str:
     system_prompt = (
         CONTEXT
@@ -127,9 +134,9 @@ def get_merged_meeting_minutes(
                 meeting_minutes_chunks_as_text = meeting_minutes_chunks_to_text(
                     meeting_minutes_chunks[i : i + 2]
                 )
-                token_count_system_prompt = get_token_count(system_prompt, llm.model)
-                token_count_meeting_minutes = get_token_count(
-                    meeting_minutes_chunks_as_text, llm.model
+                token_count_system_prompt = tokenizer.number_of_tokens(system_prompt)
+                token_count_meeting_minutes = tokenizer.number_of_tokens(
+                    meeting_minutes_chunks_as_text
                 )
                 print("Mergin Batches: ")
                 print(f"Token count of system prompt: {token_count_system_prompt}")
@@ -153,15 +160,23 @@ def get_merged_meeting_minutes(
 def transcript_to_meeting_minutes(
     transcript: list[TranscriptSection], language: Language
 ) -> Tuple[str, list[str]]:
+    login(token=os.environ["HUGGING_FACE_ACCESS_TOKEN"])
+
+    model = os.environ["LLM_MODEL"]
+    tokenizer = Tokenizer(model)
+
     llm = LLM(
-        model=str(os.environ["LLM_MODEL"]),
+        model=str(model),
         url=os.environ["LLM_URL"],
         authorization=os.environ["LLM_AUTHORIZATION"],
         temperature=0.5,
         max_tokens=os.environ["LLM_MAX_TOKENS"],
     )
 
-    meeting_minutes_chunks = generate_meeting_minutes_chunks(transcript, language, llm)
+    meeting_minutes_chunks = generate_meeting_minutes_chunks(
+        transcript, language, llm, tokenizer
+    )
+
     meeting_minutes_chunks_as_text = meeting_minutes_chunks_to_text(
         meeting_minutes_chunks
     )
@@ -169,9 +184,9 @@ def transcript_to_meeting_minutes(
         "----------------------------- meeting_minutes_chunks_as_text ------------------------------------"
     )
     print(meeting_minutes_chunks_as_text)
-    merged_meeting_minutes = ""
+    
     merged_meeting_minutes = get_merged_meeting_minutes(
-        meeting_minutes_chunks, language, llm
+        meeting_minutes_chunks, language, llm, tokenizer
     )
     print(
         "----------------------------- merged_meeting_minutes ------------------------------------"

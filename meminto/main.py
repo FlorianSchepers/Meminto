@@ -22,7 +22,6 @@ from meminto.transcriber import (
     save_transcript_as_txt,
 )
 from dotenv import load_dotenv
-from pyannote.core import Annotation
 
 EXAMPLE_INPUT_FILE = Path(__file__).parent.resolve() / "../examples/Scoreboard.wav"
 DEFAULT_OUTPUT_FOLDER = Path(__file__).parent.resolve() / "../output"
@@ -34,14 +33,14 @@ def create_meeting_minutes(audio_input_file_path: Path, output_folder_path: Path
     diarization = diarizer.diarize_audio(audio_input_file_path)
     save_as_pkl(diarization, output_folder_path / "diarization.pkl")
     
-    diarization: Annotation = load_pkl(output_folder_path / "diarization.pkl")
+    diarization = load_pkl(output_folder_path / "diarization.pkl")
     audio_sections = split_audio(audio_input_file_path, diarization)
 
     transcriber = Transcriber()
     transcript = transcriber.transcribe(audio_sections)
     save_as_pkl(transcript, output_folder_path / "transcript.pkl")
     save_transcript_as_txt(transcript, output_folder_path / "transcript.txt")
-     
+    
     transcript = load_pkl(
         output_folder_path / "transcript.pkl"
     )
