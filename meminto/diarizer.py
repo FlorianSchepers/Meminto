@@ -1,7 +1,7 @@
 from pathlib import Path
 from pyannote.audio import Pipeline # type: ignore
 from pyannote.core import Annotation # type: ignore
-from decorators import log_time
+from meminto.decorators import log_time
 
 
 class Diarizer():

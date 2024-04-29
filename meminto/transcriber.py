@@ -7,8 +7,8 @@ from transformers import (
     WhisperForConditionalGeneration,
     pipeline,
 )
-from decorators import log_time
-from audio_processing import AudioSection
+from meminto.decorators import log_time
+from meminto.audio_processing import AudioSection
 
 
 class WHISPER_MODEL_SIZE(Enum):

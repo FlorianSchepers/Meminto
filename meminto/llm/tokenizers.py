@@ -1,15 +1,16 @@
-import os
 import tiktoken
-from sentencepiece import SentencePieceProcessor
 from transformers import AutoTokenizer, OpenAIGPTTokenizer
+from huggingface_hub import login
 
 
 class Tokenizer:
-    def __init__(self, model: str):
+    def __init__(self, model: str, hugging_face_acces_token: str):
         self.model = model
+        self.hugging_face_acces_token = hugging_face_acces_token
         self.tokenizer = self._select_tokenizer()
 
     def _select_tokenizer(self):
+        login(token=self.hugging_face_acces_token)
         try:
             tokenizer = AutoTokenizer.from_pretrained(self.model)
         except:
