@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import torchaudio as torchaudio
 from torch import Tensor
-from decorators import log_time
+from meminto.decorators import log_time
 from pyannote.core import Annotation, Segment
 from pyannote.core.utils.types import Label
 
