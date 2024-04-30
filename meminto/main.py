@@ -76,7 +76,7 @@ def create_meeting_minutes(audio_input_file_path: Path, output_folder_path: Path
     "--language",
     show_default=True,
     default="english",
-    help="Select the language in which the meeting minutes should be generated. Currently supproted languages are 'english' and 'german'.",
+    help="Select the language in which the meeting minutes should be generated. Currently supproted are 'english' and 'german'.",
 )
 def main(input_file: str, output_folder: str, language :str) -> None:
     load_dotenv()
