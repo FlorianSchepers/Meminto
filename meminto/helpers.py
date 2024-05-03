@@ -28,7 +28,7 @@ def parse_input_file_path(input_file: str) -> Path:
 
     if not file_path.exists():
         raise Exception(f"Input file does not exist at given file path: {file_path}")
-    
+
     if not file_path.is_file():
         raise Exception(f"Input file path '{file_path}' does not reference a file.")
 
@@ -49,7 +49,9 @@ def parse_output_folder_path(output_folder: str) -> Path:
         )
 
     if not output_folder_path.is_dir():
-        raise Exception(f"Output folder path '{output_folder_path}' does not reference a folder.")
+        raise Exception(
+            f"Output folder path '{output_folder_path}' does not reference a folder."
+        )
 
     return output_folder_path.resolve()
 

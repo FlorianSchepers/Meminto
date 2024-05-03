@@ -16,7 +16,6 @@ from meminto.llm.tokenizers import Tokenizer
 from meminto.transcriber import TranscriptSection
 
 
-
 class MeetingMinutesGenerator:
     def __init__(
         self,
@@ -43,7 +42,6 @@ class MeetingMinutesGenerator:
         transcript: list[TranscriptSection],
         language: Language,
     ) -> list[str]:
-
         system_prompt = (
             CONTEXT
             + INSTRUCTIONS_CREATE_MEETING_MINUTES

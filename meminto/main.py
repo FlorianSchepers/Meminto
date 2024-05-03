@@ -46,7 +46,7 @@ def create_meeting_minutes(
     transcript = transcriber.transcribe(audio_sections)
     save_as_pkl(transcript, output_folder_path / "transcript.pkl")
     save_transcript_as_txt(transcript, output_folder_path / "transcript.txt")
-    
+
     tokenizer = Tokenizer(
         os.environ["LLM_MODEL"],
         hugging_face_acces_token=os.environ["HUGGING_FACE_ACCESS_TOKEN"],

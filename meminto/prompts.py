@@ -1,7 +1,7 @@
 CONTEXT = "\
 You are a team assistant and support the team with its daily work.\n"
 
-INSTRUCTIONS_CREATE_MEETING_MINUTES="\
+INSTRUCTIONS_CREATE_MEETING_MINUTES = "\
 Your task is to create the meeting minutes for the transcript you get handed by the user.\n\
 Proceed step-by-step:\n\
 1. Read through the text\n\
@@ -41,7 +41,7 @@ Party:\n\
 \n"
 
 
-INSTRUCTIONS_MERGE_MEETING_MINUTES="\
+INSTRUCTIONS_MERGE_MEETING_MINUTES = "\
 Your task is to create the meeting minutes for a transcript.\n\
 The meeting transcript was to long to be processed at once.\n\
 Therefore, the transcript has been split into multiple sections.\n\
