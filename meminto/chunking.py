@@ -38,7 +38,7 @@ def _number_of_tokens_per_chunk(
         number_of_chunks = token_count_transcript // token_count_per_chunk + 1
         number_of_tokens_per_chunk = token_count_transcript // number_of_chunks + 1
 
-        print(f"Spliting transcript in chunks:")
+        print("Spliting transcript in chunks:")
         print(f"LLM max. token count: {max_tokens}")
         print(f"Token count of system prompt: {token_count_system_prompt}")
         print(f"Token count reserved for response: {token_count_reserved_for_response}")

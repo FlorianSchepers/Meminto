@@ -21,7 +21,19 @@ transformers = "^4.39.3"
 pyannote-pipeline = "^3.0.1"
 speechbrain = "0.5.15"
 python-dotenv = "^1.0.1"
-mypy = "^1.9.0"
 
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.4.2"
+mypy = "^1.9.0"
+types-requests = "^2.31.0.20240406"
+
+[[tool.mypy.overrides]]
+module = [
+    "transformers",
+    "huggingface_hub",
+    "torchaudio",
+    "pyannote.*",
+]
+ignore_missing_imports = true
 
 

@@ -1,6 +1,6 @@
 import tiktoken
 from transformers import AutoTokenizer, OpenAIGPTTokenizer
-from huggingface_hub import login
+from huggingface_hub import login 
 
 
 class Tokenizer:
@@ -13,7 +13,7 @@ class Tokenizer:
         login(token=self.hugging_face_acces_token)
         try:
             tokenizer = AutoTokenizer.from_pretrained(self.model)
-        except:
+        except(Exception):
             if self.model in tiktoken.model.MODEL_TO_ENCODING.keys():
                 tokenizer = OpenAIGPTTokenizer.from_pretrained("openai-gpt")
             else:

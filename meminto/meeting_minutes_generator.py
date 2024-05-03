@@ -1,5 +1,3 @@
-import os
-from typing import Tuple
 from meminto.decorators import log_time
 from meminto.helpers import Language
 from meminto.llm.llm import LLM
@@ -16,7 +14,7 @@ from meminto.prompts import (
 )
 from meminto.llm.tokenizers import Tokenizer
 from meminto.transcriber import TranscriptSection
-from huggingface_hub import login
+
 
 
 class MeetingMinutesGenerator:
