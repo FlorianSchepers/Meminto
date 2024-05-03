@@ -32,7 +32,7 @@ def parse_input_file_path(input_file: str) -> Path:
     if not file_path.is_file():
         raise Exception(f"Input file path '{file_path}' does not reference a file.")
 
-    if not file_path.suffix in ALLOWED_INPUT_FILE_TYPE:
+    if file_path.suffix not in ALLOWED_INPUT_FILE_TYPE:
         raise Exception(
             f"Invalid input file type. Only one of the following file type are allowed: {', '.join(str(file_type) for file_type in ALLOWED_INPUT_FILE_TYPE)}"
         )

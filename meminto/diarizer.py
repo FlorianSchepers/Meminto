@@ -1,6 +1,6 @@
 from pathlib import Path
-from pyannote.audio import Pipeline # type: ignore
-from pyannote.core import Annotation # type: ignore
+from pyannote.audio import Pipeline 
+from pyannote.core import Annotation 
 from meminto.decorators import log_time
 
 
