@@ -28,7 +28,9 @@ def load_audio(audio_path: Path) -> Tensor:
 
 
 @log_time
-def split_audio(audio_input_file_path: Path, diarization: Annotation) -> list[AudioSection]:
+def split_audio(
+    audio_input_file_path: Path, diarization: Annotation
+) -> list[AudioSection]:
     audio = load_audio(audio_input_file_path)
 
     audio_sections = []
