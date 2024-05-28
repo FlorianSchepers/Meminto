@@ -26,6 +26,37 @@ from dotenv import load_dotenv
 
 EXAMPLE_INPUT_FILE = Path(__file__).parent.resolve() / "../examples/Scoreboard.wav"
 DEFAULT_OUTPUT_FOLDER = Path(__file__).parent.resolve() / "../output"
+DEFAULT_LANGUAGE = Language.ENGLISH
+
+
+@click.command()
+@click.option(
+    "-f",
+    "--input-file",
+    show_default=True,
+    default=EXAMPLE_INPUT_FILE,
+    help="Path to the input audio file.",
+)
+@click.option(
+    "-o",
+    "--output-folder",
+    show_default=True,
+    default=DEFAULT_OUTPUT_FOLDER,
+    help="Path to the folder where the output files are stored.",
+)
+@click.option(
+    "-l",
+    "--language",
+    show_default=True,
+    default=DEFAULT_LANGUAGE,
+    help="Select the language in which the meeting minutes should be generated. Currently supproted are 'english' and 'german'.",
+)
+def main(input_file: str, output_folder: str, language: str) -> None:
+    load_dotenv()
+    audio_input_file_path = parse_input_file_path(input_file)
+    output_folder_path = parse_output_folder_path(output_folder)
+    selected_language = select_language(language)
+    create_meeting_minutes(audio_input_file_path, output_folder_path, selected_language)
 
 
 @log_time
@@ -37,6 +68,10 @@ def create_meeting_minutes(
         hugging_face_token=os.environ["HUGGING_FACE_ACCESS_TOKEN"],
     )
     diarization = diarizer.diarize_audio(audio_input_file_path)
+
+    for speech_turn, track, speaker in diarization.itertracks(yield_label=True):
+        print(f"{speech_turn.start:4.1f} {speech_turn.end:4.1f} {speaker}")
+
     save_as_pkl(diarization, output_folder_path / "diarization.pkl")
 
     diarization = load_pkl(output_folder_path / "diarization.pkl")
@@ -44,6 +79,7 @@ def create_meeting_minutes(
 
     transcriber = Transcriber()
     transcript = transcriber.transcribe(audio_sections)
+
     save_as_pkl(transcript, output_folder_path / "transcript.pkl")
     save_transcript_as_txt(transcript, output_folder_path / "transcript.txt")
 
@@ -66,36 +102,6 @@ def create_meeting_minutes(
     )
 
     write_text_to_file(meeting_minutes, output_folder_path / "meeting_minutes.txt")
-
-
-@click.command()
-@click.option(
-    "-f",
-    "--input-file",
-    show_default=True,
-    default=EXAMPLE_INPUT_FILE,
-    help="Path to the input audio file.",
-)
-@click.option(
-    "-o",
-    "--output-folder",
-    show_default=True,
-    default=DEFAULT_OUTPUT_FOLDER,
-    help="Path to the folder where the output files are stored.",
-)
-@click.option(
-    "-l",
-    "--language",
-    show_default=True,
-    default="english",
-    help="Select the language in which the meeting minutes should be generated. Currently supproted are 'english' and 'german'.",
-)
-def main(input_file: str, output_folder: str, language: str) -> None:
-    load_dotenv()
-    audio_input_file_path = parse_input_file_path(input_file)
-    output_folder_path = parse_output_folder_path(output_folder)
-    selected_language = select_language(language)
-    create_meeting_minutes(audio_input_file_path, output_folder_path, selected_language)
 
 
 if __name__ == "__main__":
