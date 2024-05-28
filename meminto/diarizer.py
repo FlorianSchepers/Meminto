@@ -14,5 +14,7 @@ class Diarizer:
         pipeline = Pipeline.from_pretrained(
             self.model, use_auth_token=self.hugging_face_token
         )
-        diarization: Annotation = pipeline(audio_source)
+        diarization = pipeline(audio_source)
+        assert isinstance(diarization, Annotation)
         return diarization
+
