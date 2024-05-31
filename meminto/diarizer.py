@@ -17,4 +17,3 @@ class Diarizer:
         diarization = pipeline(audio_source)
         assert isinstance(diarization, Annotation)
         return diarization
-
