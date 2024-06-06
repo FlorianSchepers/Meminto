@@ -51,11 +51,12 @@ class Transcriber:
             model=whisper_model,
             tokenizer=whisper_processor.tokenizer,
             feature_extractor=whisper_processor.feature_extractor,
-            max_new_tokens=128,
             chunk_length_s=30,
-            batch_size=16,
-            torch_dtype=torch_dtype,
+            stride_length_s=5,
+            batch_size=8,
+            max_new_tokens=128,
             device=device,
+            torch_dtype=torch_dtype,
         )
 
     @log_time
@@ -68,9 +69,6 @@ class Transcriber:
             )
             transcription = self.pipeline(
                 section.audio.numpy(),
-                chunk_length_s=30,
-                stride_length_s=5,
-                batch_size=8,
             )
             transcript_section = TranscriptSection(
                 start=section.turn.start,
