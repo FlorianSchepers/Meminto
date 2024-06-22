@@ -11,7 +11,7 @@ Proceed step-by-step:
 4. Extract tasks that were assigned to a specific person and add them to the minutes under the title **Assigned Tasks**.
 5. Under the title **Additional Notes** add those discussion points from the transcript that seem important but didn't 
    make it into one of the above categories.
-6. Return the final meeting notes to the user.
+6. Return only the final meeting notes to the user.
 """
 
 SELECT_LANGUAGE = "Always respond in "

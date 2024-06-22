@@ -55,7 +55,8 @@ class MeetingMinutesGenerator:
         transcript_chunks = chunk_transcript(
             system_prompt, transcript, self.tokenizer, self.llm.max_tokens
         )
-
+        print("Number of chunks ------------")
+        print(len(transcript_chunks))
         meeting_minutes_chunks = []
         for chunk in transcript_chunks:
             meeting_minutes_chunk = self.llm.infer(system_prompt, chunk)

@@ -63,17 +63,23 @@ def main(input_file: str, output_folder: str, language: str) -> None:
 def create_meeting_minutes(
     audio_input_file_path: Path, output_folder_path: Path, language: Language
 ):
+    ### Diarization ###
     diarizer = Diarizer(
         model="pyannote/speaker-diarization@2.1",
         hugging_face_token=os.environ["HUGGING_FACE_ACCESS_TOKEN"],
     )
     diarization = diarizer.diarize_audio(audio_input_file_path)
 
-    for speech_turn, track, speaker in diarization.itertracks(yield_label=True):
-        print(f"{speech_turn.start:4.1f} {speech_turn.end:4.1f} {speaker}")
-
+    diarization_as_text = ""
+    for speech_turn, _track, speaker in diarization.itertracks(yield_label=True):
+        (
+            diarization_as_text
+            + f"{speech_turn.start:4.1f} {speech_turn.end:4.1f} {speaker}\n"
+        )
+    write_text_to_file(diarization_as_text, output_folder_path / "diarization.txt")
     save_as_pkl(diarization, output_folder_path / "diarization.pkl")
 
+    ### Transcription ###
     diarization = load_pkl(output_folder_path / "diarization.pkl")
     audio_sections = split_audio(audio_input_file_path, diarization)
 
@@ -83,6 +89,7 @@ def create_meeting_minutes(
     save_as_pkl(transcript, output_folder_path / "transcript.pkl")
     save_transcript_as_txt(transcript, output_folder_path / "transcript.txt")
 
+    ### Generation ###
     tokenizer = Tokenizer(
         os.environ["LLM_MODEL"],
         hugging_face_acces_token=os.environ["HUGGING_FACE_ACCESS_TOKEN"],
