@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from enum import Enum
-from pathlib import Path
 import torch
 from transformers import (
     WhisperProcessor,
@@ -79,6 +78,17 @@ class Transcriber:
             transcript_sections.append(transcript_section)
         return transcript_sections
 
+    def transcript_to_txt(self, transcript: list[TranscriptSection]):
+        transcript_text = ""
+        for transcript_section in transcript:
+            transcript_text += (
+                f"start={transcript_section.start:.1f}s "
+                + f"end={transcript_section.end:.1f}s "
+                + f"speaker={transcript_section.speaker}:\n"
+            )
+            transcript_text += transcript_section.text + "\n"
+        return transcript_text
+
 
 def _model_name(model_size: WHISPER_MODEL_SIZE, english_only: bool) -> str:
     match model_size:
@@ -111,15 +121,3 @@ def _model_name(model_size: WHISPER_MODEL_SIZE, english_only: bool) -> str:
         case _:
             whisper_model_name = "openai/whisper-medium"  # multilingual, ~ 3.06 GB
     return whisper_model_name
-
-
-def save_transcript_as_txt(transcript: list[TranscriptSection], file_name: Path):
-    with open(file_name, "w") as file:
-        for transcript_section in transcript:
-            file.write(
-                f"start={transcript_section.start:.1f}s "
-                + f"end={transcript_section.end:.1f}s "
-                + f"speaker={transcript_section.speaker}:\n"
-            )
-            file.write(transcript_section.text)
-            file.write("\n")
