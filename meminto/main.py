@@ -60,27 +60,27 @@ def main(input_file: str, output_folder: str, language: str) -> None:
 def create_meeting_minutes(
     audio_input_file_path: Path, output_folder_path: Path, language: Language
 ):
-    ### Diarization ###
-    diarizer = Diarizer(
-        model="pyannote/speaker-diarization@2.1",
-        hugging_face_token=os.environ["HUGGING_FACE_ACCESS_TOKEN"],
-    )
-    diarization = diarizer.diarize_audio(audio_input_file_path)
+    # ### Diarization ###
+    # diarizer = Diarizer(
+    #     model="pyannote/speaker-diarization@2.1",
+    #     hugging_face_token=os.environ["HUGGING_FACE_ACCESS_TOKEN"],
+    # )
+    # diarization = diarizer.diarize_audio(audio_input_file_path)
 
-    diarization_text = diarizer.diarization_to_text(diarization)
-    write_text_to_file(diarization_text, output_folder_path / "diarization.txt")
-    save_as_pkl(diarization, output_folder_path / "diarization.pkl")
+    # diarization_text = diarizer.diarization_to_text(diarization)
+    # write_text_to_file(diarization_text, output_folder_path / "diarization.txt")
+    # save_as_pkl(diarization, output_folder_path / "diarization.pkl")
 
-    ### Transcription ###
-    diarization = load_pkl(output_folder_path / "diarization.pkl")
-    audio_sections = split_audio(audio_input_file_path, diarization)
+    # ### Transcription ###
+    # diarization = load_pkl(output_folder_path / "diarization.pkl")
+    # audio_sections = split_audio(audio_input_file_path, diarization)
 
-    transcriber = Transcriber()
-    transcript = transcriber.transcribe(audio_sections)
+    # transcriber = Transcriber()
+    # transcript = transcriber.transcribe(audio_sections)
 
-    transcript_text = transcriber.transcript_to_txt(transcript)
-    write_text_to_file(transcript_text, output_folder_path / "transcript.txt")
-    save_as_pkl(transcript, output_folder_path / "transcript.pkl")
+    # transcript_text = transcriber.transcript_to_txt(transcript)
+    # write_text_to_file(transcript_text, output_folder_path / "transcript.txt")
+    # save_as_pkl(transcript, output_folder_path / "transcript.pkl")
 
     ### Generation ###
     tokenizer = Tokenizer(
