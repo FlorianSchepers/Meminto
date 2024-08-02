@@ -18,13 +18,13 @@ class Tokenizer:
                 tokenizer = OpenAIGPTTokenizer.from_pretrained("openai-gpt")
             else:
                 print(
-                    f'\n'
+                    f"\n"
                     f'Could not find a matching tokenizer for the model "{self.model}".\n'
-                    f'Error message:\n' 
-                    f'{e}\n'
-                    f'\n'
+                    f"Error message:\n"
+                    f"{e}\n"
+                    f"\n"
                     f'Will try to use the tokenizer for "meta-llama/Llama-2-70b-chat-hf" as fallback instead.\n'
-                ) 
+                )
                 try:
                     tokenizer = AutoTokenizer.from_pretrained(
                         "meta-llama/Llama-2-70b-chat-hf"
@@ -32,13 +32,12 @@ class Tokenizer:
                 except Exception as e:
                     tokenizer = None
                     print(
-                        f'\n'
+                        f"\n"
                         f'Failed to download "meta-llama/Llama-2-70b-chat-hf".\n'
-                        f'Error message:\n' 
-                        f'{e}\n'
-                        f'\n'
-                        f'Will assume 3 characters = 1 token as fallback.\n'
-                        
+                        f"Error message:\n"
+                        f"{e}\n"
+                        f"\n"
+                        f"Will assume 3 characters = 1 token as fallback.\n"
                     )
         return tokenizer
 
@@ -50,5 +49,5 @@ class Tokenizer:
             tokens = self.tokenize(content)
             token_count = len(tokens)
         else:
-            token_count = len(content)//3+1
+            token_count = len(content) // 3 + 1
         return token_count
