@@ -31,7 +31,7 @@ class MeetingMinutesGenerator:
             transcript, language
         )
 
-        merged_meeting_minutes = self.merged_meeting_minutes(
+        merged_meeting_minutes = self.merge_meeting_minutes(
             meeting_minutes_chunks, language
         )
 
@@ -63,7 +63,7 @@ class MeetingMinutesGenerator:
 
         return meeting_minutes_chunks
 
-    def merged_meeting_minutes(
+    def merge_meeting_minutes(
         self,
         meeting_minutes_chunks: list[str],
         language: Language,
