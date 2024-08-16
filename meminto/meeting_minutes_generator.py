@@ -58,7 +58,11 @@ class MeetingMinutesGenerator:
 
         meeting_minutes_chunks = []
         for chunk in transcript_chunks:
+            print("===================================================")
+            print(chunk)
             meeting_minutes_chunk = self.llm.infer(system_prompt, chunk)
+            print("---------------------------------------")
+            print(meeting_minutes_chunk)
             meeting_minutes_chunks.append(meeting_minutes_chunk)
 
         return meeting_minutes_chunks
@@ -95,7 +99,7 @@ class MeetingMinutesGenerator:
                     token_count_meeting_minutes = self.tokenizer.number_of_tokens(
                         meeting_minutes_chunks_as_text
                     )
-                    print("Mergin meeting minutes chunks: ")
+                    print("Merging meeting minutes chunks: ")
                     print(f"Token count of system prompt: {token_count_system_prompt}")
                     print(
                         f"Token count of meeting minutes chunks: {token_count_meeting_minutes}"
