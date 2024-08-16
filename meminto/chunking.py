@@ -58,7 +58,7 @@ def chunk_transcript(
             current_chunk = [section]
         else:
             current_chunk.append(section)
-    
+
     current_chunk_size = tokenizer.number_of_tokens("".join(current_chunk))
     if current_chunk_size > lower_limit:
         transcript_chunks.append(current_chunk)
@@ -71,9 +71,7 @@ def chunk_transcript(
         transcript_chunks.append(current_chunk)
 
     return ["".join(chunk) for chunk in transcript_chunks]
-        
 
-    
 
 def _get_average_number_of_tokens_per_chunk(
     system_prompt: str,
@@ -108,7 +106,6 @@ def _get_average_number_of_tokens_per_chunk(
     print(f"Average number of tokens per chunk: {average_number_of_tokens_per_chunk}")
 
     return average_number_of_tokens_per_chunk
-
 
 
 def _get_token_count_available_for_user_prompt(
