@@ -47,3 +47,24 @@ def split_audio(
             )
         )
     return audio_sections
+
+@log_time
+def split_audio_dict(
+    audio_input_file_path: Path, diarization_list: list[dict]
+) -> list[AudioSection]:
+    audio = load_audio(audio_input_file_path)
+
+    audio_sections = []
+    for segment in diarization_list:
+        audio_sections.append(
+            AudioSection(
+                speaker=segment["speaker"],
+                turn=segment["turn"],
+                audio=audio[
+                    int(SAMPLING_RATE * round(segment["start"], 1)) : int(
+                        SAMPLING_RATE * round(segment["end"], 1)
+                    )
+                ],
+            )
+        )
+    return audio_sections

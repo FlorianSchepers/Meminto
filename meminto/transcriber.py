@@ -152,7 +152,20 @@ class RemoteTranscriber(Transcriber):
         response = requests.post(url=self.url, headers=headers, files=files)
         section_transcript = response.json()
         return section_transcript["text"].strip()
-
+    
+    def diarize_audio(
+            self, audio_path: str
+            ) -> str:
+        
+        headers = {
+            "Authorization": self.authorization,
+        }
+        files = {"file": open(audio_path, "rb"), "response_format": (None, "verbose_json")}
+        print(f"Endpoint used for transcription: {self.url}")
+        response = requests.post(url=self.url, headers=headers, files=files)
+        print(response)
+        print(response.text)
+        return response.json()
 
 def _model_name(model_size: WHISPER_MODEL_SIZE, english_only: bool) -> str:
     match model_size:
