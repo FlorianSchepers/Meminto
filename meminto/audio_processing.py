@@ -19,6 +19,7 @@ class AudioSection:
 
 def load_audio(audio_path: Path) -> Tensor:
     audio, sr = torchaudio.load(audio_path)
+    print(f"Sampling Rate: {sr}")
     number_of_channels = audio.size()[0]
     if number_of_channels > 1:
         audio = audio[0]
@@ -26,6 +27,9 @@ def load_audio(audio_path: Path) -> Tensor:
     audio_resampled: Tensor = resampler(audio)
     return audio_resampled.squeeze()
 
+def save_audio(audio: Tensor, output_path: Path) -> None:
+    # Add the channel dimension back before saving
+    torchaudio.save(output_path, audio.unsqueeze(0), SAMPLING_RATE)
 
 @log_time
 def split_audio(

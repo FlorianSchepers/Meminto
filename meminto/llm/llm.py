@@ -22,7 +22,7 @@ class LLM:
 
         print(f"Url used for LLM request: {self.url}")
         response = requests.post(url=self.url, headers=headers, json=parameters)
-
+        print(response.text)
         return response.json()["choices"][0]["message"]["content"]
 
     def _create_headers(self) -> dict:

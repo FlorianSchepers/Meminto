@@ -1,8 +1,9 @@
 import os
 from pathlib import Path
 import click
+import torchaudio
 from meminto.llm.tokenizers import Tokenizer
-from meminto.audio_processing import split_audio
+from meminto.audio_processing import load_audio, save_audio, split_audio
 from meminto.decorators import log_time
 from meminto.diarizer import Diarizer
 from meminto.helpers import (
@@ -75,9 +76,14 @@ def create_meeting_minutes(
     language: Language,
     remote_transcriber: bool,
 ):
+    audio_output_file_path = "examples/tmp.wav"
+    audio_file = load_audio(audio_input_file_path)
+    save_audio(audio_file, audio_output_file_path)
+    audio_file = load_audio(audio_output_file_path)
+    #audio_input_file_path = audio_output_file_path
     ### Diarization ###
     diarizer = Diarizer(
-        model="pyannote/speaker-diarization@2.1",
+        model="pyannote/speaker-diarization-3.1",
         hugging_face_token=os.environ["HUGGING_FACE_ACCESS_TOKEN"],
     )
     diarization = diarizer.diarize_audio(audio_input_file_path)
@@ -86,45 +92,45 @@ def create_meeting_minutes(
     write_text_to_file(diarization_text, output_folder_path / "diarization.txt")
     save_as_pkl(diarization, output_folder_path / "diarization.pkl")
 
-    ### Transcription ###
-    diarization = load_pkl(output_folder_path / "diarization.pkl")
-    audio_sections = split_audio(audio_input_file_path, diarization)
+    # ### Transcription ###
+    # diarization = load_pkl(output_folder_path / "diarization.pkl")
+    # audio_sections = split_audio(audio_input_file_path, diarization)
 
-    if remote_transcriber:
-        print("Using RemoteTranscriber.")
-        transcriber = RemoteTranscriber(
-            url=os.environ["TRANSCRIBER_URL"],
-            authorization=os.environ["TRANSCRIBER_AUTHORIZATION"],
-        )
-    else:
-        print("Using LocalTranscriber.")
-        transcriber = LocalTranscriber()
-    transcript = transcriber.transcribe(audio_sections)
+    # if remote_transcriber:
+    #     print("Using RemoteTranscriber.")
+    #     transcriber = RemoteTranscriber(
+    #         url=os.environ["TRANSCRIBER_URL"],
+    #         authorization=os.environ["TRANSCRIBER_AUTHORIZATION"],
+    #     )
+    # else:
+    #     print("Using LocalTranscriber.")
+    #     transcriber = LocalTranscriber()
+    # transcript = transcriber.transcribe(audio_sections)
 
-    transcript_text = transcriber.transcript_to_txt(transcript)
-    write_text_to_file(transcript_text, output_folder_path / "transcript.txt")
-    save_as_pkl(transcript, output_folder_path / "transcript.pkl")
+    # transcript_text = transcriber.transcript_to_txt(transcript)
+    # write_text_to_file(transcript_text, output_folder_path / "transcript.txt")
+    # save_as_pkl(transcript, output_folder_path / "transcript.pkl")
 
-    ### Generation ###
-    tokenizer = Tokenizer(
-        os.environ["LLM_MODEL"],
-        hugging_face_acces_token=os.environ["HUGGING_FACE_ACCESS_TOKEN"],
-    )
-    llm = LLM(
-        model=os.environ["LLM_MODEL"],
-        url=os.environ["LLM_URL"],
-        authorization=os.environ["LLM_AUTHORIZATION"],
-        temperature=0.5,
-        max_tokens=int(os.environ["LLM_MAX_TOKENS"]),
-    )
+    # ### Generation ###
+    # tokenizer = Tokenizer(
+    #     os.environ["LLM_MODEL"],
+    #     hugging_face_acces_token=os.environ["HUGGING_FACE_ACCESS_TOKEN"],
+    # )
+    # llm = LLM(
+    #     model=os.environ["LLM_MODEL"],
+    #     url=os.environ["LLM_URL"],
+    #     authorization=os.environ["LLM_AUTHORIZATION"],
+    #     temperature=0.5,
+    #     max_tokens=int(os.environ["LLM_MAX_TOKENS"]),
+    # )
 
-    transcript = load_pkl(output_folder_path / "transcript.pkl")
-    meeting_minutes_generator = MeetingMinutesGenerator(tokenizer=tokenizer, llm=llm)
-    meeting_minutes = meeting_minutes_generator.generate(
-        transcript=transcript, language=language
-    )
+    # transcript = load_pkl(output_folder_path / "transcript.pkl")
+    # meeting_minutes_generator = MeetingMinutesGenerator(tokenizer=tokenizer, llm=llm)
+    # meeting_minutes = meeting_minutes_generator.generate(
+    #     transcript=transcript, language=language
+    # )
 
-    write_text_to_file(meeting_minutes, output_folder_path / "meeting_minutes.txt")
+    # write_text_to_file(meeting_minutes, output_folder_path / "meeting_minutes.txt")
 
 
 if __name__ == "__main__":
