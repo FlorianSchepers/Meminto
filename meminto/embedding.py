@@ -13,7 +13,7 @@ import scipy.cluster.hierarchy as hierarchy
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
-FILE_PATH = 'examples\SpanishTestRecording.wav'
+FILE_PATH = 'examples\multivoice.wav'
 
 def main() -> None:
 
