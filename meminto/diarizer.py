@@ -1,6 +1,7 @@
 from pathlib import Path
 from pyannote.audio import Pipeline
 from pyannote.core import Annotation
+import torch
 from meminto.decorators import log_time
 
 
@@ -9,6 +10,11 @@ class Diarizer:
         self.pipeline = Pipeline.from_pretrained(
             model, use_auth_token=hugging_face_token
         )
+        if torch.cuda.is_available():
+            self.pipeline.to(torch.device("cuda"))
+            print("Running pyannote.audio on GPU")
+        else:
+            print("Running pyannote.audio on CPU")
 
     @log_time
     def diarize_audio(self, audio_source: Path) -> Annotation:

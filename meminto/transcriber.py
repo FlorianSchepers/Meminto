@@ -1,3 +1,4 @@
+from accelerate import Accelerator
 from dataclasses import dataclass
 from enum import Enum
 from io import BytesIO
@@ -5,8 +6,8 @@ import requests
 import torch
 import torchaudio
 from transformers import (
-    WhisperProcessor,
-    WhisperForConditionalGeneration,
+    AutoProcessor,
+    AutoModelForSpeechSeq2Seq,
     pipeline,
 )
 from meminto.decorators import log_time
@@ -37,23 +38,8 @@ class Transcriber:
     def transcribe_section(self, audio_section: AudioSection):
         raise NotImplementedError("Subclasses should implement this method")
 
-    @log_time
     def transcribe(self, audio_sections: list[AudioSection]) -> list[TranscriptSection]:
-        transcript_sections = []
-        total_number_of_sections = len(audio_sections)
-        for section_number, section in enumerate(audio_sections):
-            print(
-                f"Transscribing section {section_number} of {total_number_of_sections}."
-            )
-            transcription = self.transcribe_section(section)
-            transcript_section = TranscriptSection(
-                start=section.turn.start,
-                end=section.turn.end,
-                speaker=section.speaker,
-                text=transcription,
-            )
-            transcript_sections.append(transcript_section)
-        return transcript_sections
+        raise NotImplementedError("Subclasses should implement this method")
 
     def transcript_to_txt(self, transcript: list[TranscriptSection]):
         transcript_text = ""
@@ -74,52 +60,55 @@ class LocalTranscriber(Transcriber):
         english_only: bool = False,
     ):
         model_name = _model_name(model_size, english_only)
-        device = "cuda:0" if torch.cuda.is_available() else "cpu"
-        print(f"Running on {device}")
-        whisper_processor = WhisperProcessor.from_pretrained(model_name)
-        whisper_model = WhisperForConditionalGeneration.from_pretrained(model_name).to(
-            device
+
+        self.accelerator = Accelerator()
+
+        if self.accelerator.device.type == "cuda":
+            device_map = "auto"
+            torch_dtype = torch.float16
+            print(f"Running Whisper on GPU with dtype {torch_dtype}")
+        else:
+            device_map = None
+            torch_dtype = torch.float32
+            print(f"Running Whisper on CPU with dtype {torch_dtype}")
+
+        model = AutoModelForSpeechSeq2Seq.from_pretrained(
+            model_name,
+            torch_dtype=torch_dtype,
+            use_safetensors=True,
+            device_map=device_map,
         )
-        torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+
+        model = self.accelerator.prepare(model)
+
+        processor = AutoProcessor.from_pretrained(model_name)
 
         self.pipeline = pipeline(
             "automatic-speech-recognition",
-            model=whisper_model,
-            tokenizer=whisper_processor.tokenizer,
-            feature_extractor=whisper_processor.feature_extractor,
+            model=model,
+            tokenizer=processor.tokenizer,
+            feature_extractor=processor.feature_extractor,
+            torch_dtype=torch_dtype,
             chunk_length_s=30,
             stride_length_s=5,
-            batch_size=8,
-            max_new_tokens=128,
-            device=device,
-            torch_dtype=torch_dtype,
         )
 
-    def transcribe_section(self, audio_section: AudioSection):
-        section_transcript = self.pipeline(
-            audio_section.audio.numpy(),
-        )
-        return section_transcript["text"].strip()
+    @log_time
+    def transcribe(self, audio_sections: list[AudioSection]) -> list[TranscriptSection]:
+        audio_inputs = [section.audio.numpy() for section in audio_sections]
 
-    # @log_time
-    # def transcribe(self, audio_sections: list[AudioSection]) -> list[TranscriptSection]:
-    #     transcript_sections = []
-    #     total_number_of_sections = len(audio_sections)
-    #     for section_number, section in enumerate(audio_sections):
-    #         print(
-    #             f"Transscribing section {section_number} of {total_number_of_sections}."
-    #         )
-    #         transcription = self.pipeline(
-    #             section.audio.numpy(),
-    #         )
-    #         transcript_section = TranscriptSection(
-    #             start=section.turn.start,
-    #             end=section.turn.end,
-    #             speaker=section.speaker,
-    #             text=transcription["text"].strip(),
-    #         )
-    #         transcript_sections.append(transcript_section)
-    #     return transcript_sections
+        transcriptions = self.pipeline(audio_inputs)
+
+        transcript_sections = []
+        for section, transcription in zip(audio_sections, transcriptions):
+            transcript_section = TranscriptSection(
+                start=section.turn.start,
+                end=section.turn.end,
+                speaker=section.speaker,
+                text=transcription["text"].strip(),
+            )
+            transcript_sections.append(transcript_section)
+        return transcript_sections
 
 
 class RemoteTranscriber(Transcriber):
@@ -147,11 +136,33 @@ class RemoteTranscriber(Transcriber):
         headers = {
             "Authorization": self.authorization,
         }
-        files = {"file": buffer, "response_format": (None, "json")}
+        files = {
+            "file": ("audio.wav", buffer, "audio/vnd.wave"),
+            "response_format": (None, "json"),
+            "model": (None, "large-v3"),
+        }
         print(f"Endpoint used for transcription: {self.url}")
         response = requests.post(url=self.url, headers=headers, files=files)
         section_transcript = response.json()
         return section_transcript["text"].strip()
+
+    @log_time
+    def transcribe(self, audio_sections: list[AudioSection]) -> list[TranscriptSection]:
+        transcript_sections = []
+        total_number_of_sections = len(audio_sections)
+        for section_number, section in enumerate(audio_sections):
+            print(
+                f"Transscribing section {section_number} of {total_number_of_sections}."
+            )
+            transcription = self.transcribe_section(section)
+            transcript_section = TranscriptSection(
+                start=section.turn.start,
+                end=section.turn.end,
+                speaker=section.speaker,
+                text=transcription,
+            )
+            transcript_sections.append(transcript_section)
+        return transcript_sections
 
 
 def _model_name(model_size: WHISPER_MODEL_SIZE, english_only: bool) -> str:

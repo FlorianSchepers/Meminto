@@ -21,6 +21,7 @@ transformers = "^4.39.3"
 pyannote-pipeline = "^3.0.1"
 speechbrain = "0.5.15"
 python-dotenv = "^1.0.1"
+accelerate = "^1.3.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.4.2"
