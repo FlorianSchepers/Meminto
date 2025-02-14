@@ -27,16 +27,15 @@ class WHISPER_MODEL_SIZE(Enum):
 class TranscriptSection:
     start: float
     end: float
-    speaker: str
     text: str
+    speaker: str | None = None
 
     def __str__(self):
-        return f'{self.speaker}: "{self.text}"\n'
+        speaker_str = self.speaker if self.speaker is not None else "Unknown Speaker"
+        return f"[{self.start:.2f} - {self.end:.2f}] {speaker_str}: {self.text}"
 
 
 class Transcriber:
-    def transcribe_section(self, audio_section: AudioSection):
-        raise NotImplementedError("Subclasses should implement this method")
 
     def transcribe(self, audio_sections: list[AudioSection]) -> list[TranscriptSection]:
         raise NotImplementedError("Subclasses should implement this method")
