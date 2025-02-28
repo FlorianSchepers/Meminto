@@ -1,9 +1,9 @@
+import logging
 import os
 from pathlib import Path
 import click
 from meminto.llm.tokenizers import Tokenizer
-from meminto.audio_processing import split_audio
-from meminto.diarizer import Diarizer
+
 from meminto.helpers import (
     Language,
     load_pkl,
@@ -14,14 +14,17 @@ from meminto.helpers import (
     write_text_to_file,
 )
 from meminto.llm.llm import LLM
-from meminto.logging_config import log_time
+from meminto.logging_config import configure_logging, log_time
 from meminto.meeting_minutes_generator import (
     MeetingMinutesGenerator,
 )
-from meminto.transcriber import LocalTranscriber, RemoteTranscriber
+
 from dotenv import load_dotenv
 
-from meminto.transcriber.whisper_x_transcriber import WhisperXTranscriberV1
+
+from meminto.transcriber.remote_transcriber import RemoteTranscriber
+from meminto.transcriber.whisper_pyannote_transcriber import WhisperPyannoteTranscriber
+from meminto.transcriber.whisper_x_transcriber import WhisperXTranscriber
 
 EXAMPLE_INPUT_FILE = Path(__file__).parent.resolve() / "../examples/Scoreboard.wav"
 DEFAULT_OUTPUT_FOLDER = Path(__file__).parent.resolve() / "../output"
@@ -65,9 +68,15 @@ def main(
     audio_input_file_path = parse_input_file_path(input_file)
     output_folder_path = parse_output_folder_path(output_folder)
     selected_language = select_language(language)
+    
+    configure_logging()
+    logger = logging.getLogger(__name__)
+    
+    logger.info("Application started")
     create_meeting_minutes(
         audio_input_file_path, output_folder_path, selected_language, remote_transcriber
     )
+
 
 
 @log_time
@@ -76,35 +85,23 @@ def create_meeting_minutes(
     output_folder_path: Path,
     language: Language,
     remote_transcriber: bool,
-):
-    # ### Diarization ###
-    # diarizer = Diarizer(
-    #     model="pyannote/speaker-diarization@2.1",
-    #     hugging_face_token=os.environ["HUGGING_FACE_ACCESS_TOKEN"],
-    # )
-    # diarization = diarizer.diarize_audio(audio_input_file_path)
+):  
+    mode = "whisperx"
 
-    # diarization_text = diarizer.diarization_to_text(diarization)
-    # write_text_to_file(diarization_text, output_folder_path / "diarization.txt")
-    # save_as_pkl(diarization, output_folder_path / "diarization.pkl")
-
-    ### Transcription ###
-    diarization = load_pkl(output_folder_path / "diarization.pkl")
-    audio_sections = split_audio(audio_input_file_path, diarization)
-
-    if remote_transcriber:
-        print("Using RemoteTranscriber.")
+    if mode == "whisper_pyannote":
+        transcriber = WhisperPyannoteTranscriber(hugging_face_token=os.environ["HUGGING_FACE_ACCESS_TOKEN"])
+    elif mode == "whisperx":
+        transcriber = WhisperXTranscriber()
+    else:
         transcriber = RemoteTranscriber(
             url=os.environ["TRANSCRIBER_URL"],
             authorization=os.environ["TRANSCRIBER_AUTHORIZATION"],
         )
-    else:
-        print("Using LocalTranscriber.")
-        transcriber = WhisperXTranscriberV1(device="cuda")
-    transcript = transcriber.transcribe(audio_input_file_path)
+    
+    transcript = transcriber.create_transcript(audio_input_file_path)
 
-    transcript_text = transcriber.transcript_to_txt(transcript)
-    write_text_to_file(transcript_text, output_folder_path / "transcript.txt")
+    
+    write_text_to_file(str(transcript), output_folder_path / "transcript.txt")
     save_as_pkl(transcript, output_folder_path / "transcript.pkl")
 
     # ### Generation ###

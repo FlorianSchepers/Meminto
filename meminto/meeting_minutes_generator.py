@@ -1,7 +1,7 @@
-from meminto.decorators import log_time
 from meminto.helpers import Language
 from meminto.llm.llm import LLM
 from meminto.chunking import chunk_transcript
+from meminto.logging_config import log_time
 from meminto.prompts import (
     CONTEXT,
     EXAMPLE_INPUT,
@@ -13,7 +13,7 @@ from meminto.prompts import (
     SELECT_LANGUAGE,
 )
 from meminto.llm.tokenizers import Tokenizer
-from meminto.transcriber import TranscriptSection
+from meminto.transcriber.model import TranscriptSection
 
 
 class MeetingMinutesGenerator:

@@ -2,9 +2,10 @@ from dataclasses import dataclass
 from pathlib import Path
 import torchaudio as torchaudio
 from torch import Tensor
-from meminto.decorators import log_time
 from pyannote.core import Annotation, Segment
 from pyannote.core.utils.types import Label
+
+from meminto.logging_config import log_time
 
 
 SAMPLING_RATE = 16000

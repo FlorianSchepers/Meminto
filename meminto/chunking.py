@@ -1,5 +1,6 @@
 from meminto.llm.tokenizers import Tokenizer
-from meminto.transcriber import TranscriptSection
+from meminto.transcriber.model import TranscriptSection
+
 
 RATIO_OF_TOKENS_RESERVED_FOR_RESPONSE = 0.3
 
